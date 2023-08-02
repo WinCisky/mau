@@ -53,7 +53,6 @@
     }
 </script>
 
-
 <svelte:head>
     <title>Mau - {ep.expand.anime.title} - episode {episode}</title>
 </svelte:head>
@@ -70,17 +69,3 @@
 </video>
 
 <h2 class="text-2xl font-bold mt-4">{ep ? ep.expand.anime.title : ""}</h2>
-{#if ep}
-    <div class="join mt-4">
-        {#each Array(ep.expand.anime.episodes_count) as _, i}
-            <a
-                class="join-item btn
-            {i == episode ? 'btn-primary' : ''}
-            {data.episodes.find((e) => e.number == i) ? '' : 'btn-disabled'}"
-                href={`/${anime}/${i}`}
-            >
-                {i}
-            </a>
-        {/each}
-    </div>
-{/if}
