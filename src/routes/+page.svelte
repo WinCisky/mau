@@ -5,6 +5,10 @@
     $: episodes = data.episodes.items;
 </script>
 
+<svelte:head>
+    <title>Mau</title>
+</svelte:head>
+
 <div class="flex flex-wrap justify-center gap-10 mb-10">
     {#each episodes as episode}
         <div class="indicator">

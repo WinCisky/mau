@@ -53,6 +53,11 @@
     }
 </script>
 
+
+<svelte:head>
+    <title>Mau - {ep.expand.anime.title} - episode {episode}</title>
+</svelte:head>
+
 <video
     controls
     src={video}
