@@ -17,6 +17,9 @@ devDependencies:
   daisyui:
     specifier: ^3.5.0
     version: 3.5.0
+  pocketbase:
+    specifier: ^0.16.0
+    version: 0.16.0
   postcss:
     specifier: ^8.4.27
     version: 8.4.27
@@ -1008,6 +1011,10 @@ packages:
   /pirates@4.0.6:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
+    dev: true
+
+  /pocketbase@0.16.0:
+    resolution: {integrity: sha512-sndPu4Mbu1Y2VefvO2gIa/No5aIdP6E5br9HUGomvDYSfkmGfBxJNkivJSSKlr9KwWnaF8otf14304UUeFGOrA==}
     dev: true
 
   /postcss-import@15.1.0(postcss@8.4.27):
