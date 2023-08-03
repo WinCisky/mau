@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { PageData } from "./$types";
+    import { base } from '$app/paths';
     export let data: PageData;
 
     $: episodes = data.episodes.items;
@@ -26,7 +27,7 @@
             {/if}
             <a
                 class="card w-48 md:w-52 bg-base-100 shadow-xl"
-                href={`player/${episode.expand.anime.slug}/${episode.number}`}
+                href={`${base}/player/${episode.expand.anime.slug}/${episode.number}`}
             >
                 <!-- add episode number -->
                 <figure>
