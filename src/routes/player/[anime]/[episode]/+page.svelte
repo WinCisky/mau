@@ -6,6 +6,9 @@
 
     const WATCH_TRESHOLD = 0.75;
     const { anime, episode } = $page.params;
+    const formatter = new Intl.NumberFormat("en", {
+        notation: "compact",
+    });
 
     let watched = false;
     let time = 0;
@@ -54,7 +57,11 @@
 </script>
 
 <svelte:head>
-    <title>Mau - {ep.expand.anime.title} - episode {episode}</title>
+    <title
+        >Mau - {ep?.expand.anime.title
+            ? ep?.expand.anime.title
+            : ep?.expand.anime.title_eng} - episode {episode}</title
+    >
 </svelte:head>
 
 <video
@@ -63,9 +70,113 @@
     bind:currentTime={time}
     bind:duration
     bind:paused
-    class="mx-auto h-[80vh]"
+    class="mx-auto h-auto max-h-[70vh]
+        border-transparent focus:outline-none"
 >
     <track kind="captions" />
 </video>
 
-<h2 class="text-2xl font-bold mt-4">{ep ? ep.expand.anime.title : ""}</h2>
+<h2 class="text-2xl font-bold mt-6">
+    {ep?.expand.anime.title
+        ? ep.expand.anime.title
+        : ep?.expand.anime.title_eng}
+</h2>
+
+<div class="flex justify-center items-center flex-col lg:flex-row gap-5 mb-6">
+    <div class="indicator w-3/4 md:w-fit mt-6">
+        <img
+            class="w-full max-w-xs h-full object-contain"
+            src={ep?.expand.anime.imageurl}
+            alt={ep?.expand.anime.title_eng}
+        />
+        <span class="indicator-item indicator-start badge badge-neutral">
+            {ep?.expand.anime.day}
+        </span>
+        <span class="indicator-item indicator-bottom badge badge-accent">
+            {ep?.expand.anime.season}
+            {ep?.expand.anime.date}
+        </span>
+    </div>
+
+    <div class="flex-1">
+        <p class="mt-4">
+            Studio:
+            <span class="font-bold mt-4">
+                {ep?.expand.anime.studio}
+            </span>
+        </p>
+        <div
+            class="stats stats-vertical md:stats-horizontal shadow mt-6 flex-col"
+        >
+            <div class="stat">
+                <div class="stat-figure text-primary">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        class="inline-block w-8 h-8 stroke-current"
+                        ><path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                        /></svg
+                    >
+                </div>
+                <div class="stat-title">Visualizzazioni Episodio</div>
+                <div class="stat-value text-primary">
+                    {formatter.format(ep?.visite)}
+                </div>
+                <!-- <div class="stat-desc">21% more than last month</div> -->
+            </div>
+
+            <div class="stat">
+                <div class="stat-figure text-secondary">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        class="inline-block w-8 h-8 stroke-current"
+                        ><path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5"
+                        /></svg
+                    >
+                </div>
+                <div class="stat-title">Visualizzazioni Anime</div>
+                <div class="stat-value text-secondary">
+                    {formatter.format(ep?.expand.anime.visite)}
+                </div>
+                <!-- <div class="stat-desc">21% more than last month</div> -->
+            </div>
+
+            {#if ep?.expand.anime.score}
+                <div class="stat">
+                    <div class="stat-figure">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            class="inline-block w-8 h-8 stroke-current"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"
+                            /></svg
+                        >
+                    </div>
+                    <div class="stat-title">Punteggio</div>
+                    <div class="stat-value">{ep?.expand.anime.score}</div>
+                    <!-- <div class="stat-desc text-secondary">31 tasks remaining</div> -->
+                </div>
+            {/if}
+        </div>
+
+        <p class="mt-8">
+            {ep?.expand.anime.plot}
+        </p>
+    </div>
+</div>

@@ -13,12 +13,21 @@
     {#each episodes as episode}
         <div class="indicator">
             <span class="indicator-item indicator-start badge badge-neutral">
-                {episode.number} / {episode.expand.anime.episodes_count}
+                {episode.number}
+                {episode.expand.anime.episodes_count ? "/" : ""}
+                {episode.expand.anime.episodes_count != 0
+                    ? episode.expand.anime.episodes_count
+                    : ""}
             </span>
-            <span class="indicator-item indicator-bottom badge badge-info">
-                {episode.expand.anime.score}
-            </span> 
-            <a class="card w-64 bg-base-100 shadow-xl" href={`player/${episode.expand.anime.slug}/${episode.number}`}>
+            {#if episode.expand.anime.score}
+                <span class="indicator-item indicator-bottom badge badge-info">
+                    {episode.expand.anime.score}
+                </span>
+            {/if}
+            <a
+                class="card w-48 md:w-52 bg-base-100 shadow-xl"
+                href={`player/${episode.expand.anime.slug}/${episode.number}`}
+            >
                 <!-- add episode number -->
                 <figure>
                     <img
@@ -44,7 +53,11 @@
                             <div class="badge badge-secondary">ONA</div>
                         {/if}
                     </h2>
-                    <p>{episode.expand.anime.title}</p>
+                    <p>
+                        {episode.expand.anime.title
+                            ? episode.expand.anime.title
+                            : episode.expand.anime.title_eng}
+                    </p>
                     <!-- <div class="card-actions justify-end">
                     <div class="badge badge-outline">Fashion</div>
                     <div class="badge badge-outline">Products</div>
