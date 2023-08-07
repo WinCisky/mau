@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { base } from "$app/paths";
     import { onMount, onDestroy } from "svelte";
     import { page } from "$app/stores";
     import type { PageData } from "./$types";
@@ -20,6 +21,7 @@
     let watchTimer = 0;
 
     $: ep = data.episodes.find((e) => e.number == episode);
+    $: sortedEpisodes = data.episodes.sort((a, b) => a.number - b.number);
 
     $: video = ep ? ep.link : "";
     // $: video = "";
@@ -50,7 +52,25 @@
             const percentageWatched = secondsWatched / duration;
             if (percentageWatched > WATCH_TRESHOLD) {
                 watched = true;
-                console.log("User has watched more than 75% of the video");
+                // add to localstorage videos watched
+                let watchedVideos = localStorage.getItem("watchedVideos");
+                let videos = {} as Record<string, number[]>;
+                if (watchedVideos) {
+                    videos = JSON.parse(watchedVideos) as Record<
+                        string,
+                        number[]
+                    >;
+                }
+                if (!videos[ep?.anime_id]?.includes(ep?.number)) {
+                    videos[ep?.anime_id] = [
+                        ...(videos[ep?.anime_id] || []),
+                        ep?.number,
+                    ];
+                    localStorage.setItem(
+                        "watchedVideos",
+                        JSON.stringify(videos)
+                    );
+                }
             }
         }
     }
@@ -76,11 +96,47 @@
     <track kind="captions" />
 </video>
 
-<h2 class="text-2xl font-bold mt-6">
-    {ep?.expand.anime.title
-        ? ep.expand.anime.title
-        : ep?.expand.anime.title_eng}
-</h2>
+<div class="flex flex-col lg:flex-row justify-between items-center align-middle gap-5 mt-6">
+    <h2 class="text-2xl font-bold">
+        {ep?.expand.anime.title
+            ? ep.expand.anime.title
+            : ep?.expand.anime.title_eng}
+    </h2>
+
+    <div class="join flex flex-wrap">
+        {#if ep?.expand.anime.episodes_count}
+            {#each Array(ep?.expand.anime.episodes_count) as _, i}
+                {#if sortedEpisodes.find((e) => e.number == i + 1)}
+                    <a
+                        class="join-item btn {i + 1 === ep.number
+                            ? 'btn-active'
+                            : ''}"
+                        href={`${base}/player/${anime}/${i + 1}`}
+                        target="_self"
+                    >
+                        {i + 1}
+                    </a>
+                {:else}
+                    <button class="join-item btn btn-disabled">
+                        {i + 1}
+                    </button>
+                {/if}
+            {/each}
+        {:else}
+            {#each sortedEpisodes as episode, i}
+                <a
+                    class="join-item btn {episode.number === ep?.number
+                        ? 'btn-active'
+                        : ''}"
+                    href={`${base}/player/${anime}/${i + 1}`}
+                    target="_self"
+                >
+                    {episode.number}
+                </a>
+            {/each}
+        {/if}
+    </div>
+</div>
 
 <div class="flex justify-center items-center flex-col lg:flex-row gap-5 mb-6">
     <div class="indicator w-3/4 md:w-fit mt-6">

@@ -1,13 +1,11 @@
-import type { PageLoad } from "./$types";
-import PocketBase from "pocketbase";
+// import type { PageLoad } from "./$types";
+// import PocketBase from "pocketbase";
+// import { getLatestEpisodes } from "$lib/db_helper";
 
-export const load = (async () => {
-    const pb = new PocketBase("https://dev.opentrust.it/");
-    const resultList = await pb.collection('mau_episodes').getList(1, 30, {
-        sort: '-upload',
-        expand: "anime",
-    });
+// export const load = (async () => {
+//     const pb = new PocketBase("https://dev.opentrust.it/");
+//     const resultList = await getLatestEpisodes(pb);
   
-    return { "episodes": resultList };
-  }) satisfies PageLoad;
+//     return { "episodes": resultList };
+//   }) satisfies PageLoad;
   
