@@ -1,3 +1,4 @@
+import type { Episode } from "$lib/db_helper";
 import type { PageLoad } from "./$types";
 import PocketBase from "pocketbase";
 
@@ -10,6 +11,6 @@ export const load = (async ({params}) => {
         expand: "anime",
     });
   
-    return { "episodes": resultList };
+    return { "episodes": resultList as unknown as Episode[] };
   }) satisfies PageLoad;
   

@@ -15,12 +15,13 @@
     let time = 0;
     let duration: number;
     let paused = true;
+    let volume = 1;
 
     // rough estimate of how many seconds the user has watched
     let secondsWatched = 0;
     let watchTimer = 0;
 
-    $: ep = data.episodes.find((e) => e.number == episode);
+    $: ep = data.episodes.find((e) => e.number == parseInt(episode));
     $: sortedEpisodes = data.episodes.sort((a, b) => a.number - b.number);
 
     $: video = ep ? ep.link : "";
@@ -36,6 +37,9 @@
                 clearInterval(watchTimer);
             }
         }, 1000);
+
+        if (typeof localStorage !== "undefined")
+            volume = parseFloat(localStorage.getItem("volume") || "1");
     });
 
     onDestroy(() => {
@@ -50,7 +54,10 @@
             duration > 0
         ) {
             const percentageWatched = secondsWatched / duration;
-            if (percentageWatched > WATCH_TRESHOLD) {
+            if (
+                percentageWatched > WATCH_TRESHOLD &&
+                typeof localStorage !== "undefined"
+            ) {
                 watched = true;
                 // add to localstorage videos watched
                 let watchedVideos = localStorage.getItem("watchedVideos");
@@ -61,10 +68,10 @@
                         number[]
                     >;
                 }
-                if (!videos[ep?.anime_id]?.includes(ep?.number)) {
-                    videos[ep?.anime_id] = [
-                        ...(videos[ep?.anime_id] || []),
-                        ep?.number,
+                if (!videos[ep?.anime_id ?? 0]?.includes(ep?.number ?? 0)) {
+                    videos[ep?.anime_id ?? 0] = [
+                        ...(videos[ep?.anime_id ?? 0] || []) as number[],
+                        ep?.number ?? 0,
                     ];
                     localStorage.setItem(
                         "watchedVideos",
@@ -90,6 +97,11 @@
     bind:currentTime={time}
     bind:duration
     bind:paused
+    bind:volume
+    on:volumechange={() => {
+        if (typeof localStorage !== "undefined")
+            localStorage.setItem("volume", volume.toString());
+    }}
     class="mx-auto h-auto max-h-[70vh]
         border-transparent focus:outline-none"
 >
@@ -181,7 +193,7 @@
                 </div>
                 <div class="stat-title">Visualizzazioni Episodio</div>
                 <div class="stat-value text-primary">
-                    {formatter.format(ep?.visite)}
+                    {formatter.format(ep?.visite ?? 0)}
                 </div>
                 <!-- <div class="stat-desc">21% more than last month</div> -->
             </div>
@@ -203,7 +215,7 @@
                 </div>
                 <div class="stat-title">Visualizzazioni Anime</div>
                 <div class="stat-value text-secondary">
-                    {formatter.format(ep?.expand.anime.visite)}
+                    {formatter.format(ep?.expand.anime.visite ?? 0)}
                 </div>
                 <!-- <div class="stat-desc">21% more than last month</div> -->
             </div>

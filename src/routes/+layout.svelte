@@ -16,7 +16,7 @@
         window.location.href = `${base}/`;
     }
 
-    let settings = {};
+    let settings = {} as Record<string, boolean>;
 
     onMount(() => {
         settings = JSON.parse(
