@@ -8,6 +8,11 @@
     const pb = new PocketBase("https://dev.opentrust.it/");
     let episodes = [] as Episode[];
 
+    $: watched =
+        typeof localStorage !== "undefined"
+            ? JSON.parse(localStorage.getItem("watchedVideos") || "{}")
+            : null;
+
     onMount(() => {
         getLatestEpisodes(pb).then((resultList) => {
             // console.log(JSON.stringify(resultList, null, 2));
@@ -33,10 +38,11 @@
                     class="indicator-item indicator-start badge badge-neutral"
                 >
                     {episode.number}
-                    {episode.expand.anime.episodes_count ? "/" : ""}
-                    {episode.expand.anime.episodes_count != 0
-                        ? episode.expand.anime.episodes_count
-                        : ""}
+                    {#if episode.expand.anime.episodes_count != 0}
+                        <span class="hidden md:inline md:pl-1"
+                            >/ {episode.expand.anime.episodes_count}</span
+                        >
+                    {/if}
                 </span>
                 {#if episode.expand.anime.score}
                     <span
@@ -51,7 +57,11 @@
                     </span>
                 {/if}
                 <a
-                    class="card w-36 md:w-52 bg-base-100 shadow-xl"
+                    class="card w-36 md:w-52 bg-base-100 shadow-xl
+                        {watched &&
+                    watched[episode.anime_id]?.includes(episode.number)
+                        ? 'opacity-60'
+                        : ''}"
                     href={`${base}/player/${episode.expand.anime.slug}/${episode.number}`}
                 >
                     <!-- add episode number -->
@@ -79,15 +89,13 @@
                                 <div class="badge badge-secondary">ONA</div>
                             {/if}
                         </h2>
-                        <p class="break-words">
+                        <p
+                            class="break-words truncate md:overflow-auto md:whitespace-normal overflow-auto"
+                        >
                             {episode.expand.anime.title
                                 ? episode.expand.anime.title
                                 : episode.expand.anime.title_eng}
                         </p>
-                        <!-- <div class="card-actions justify-end">
-                    <div class="badge badge-outline">Fashion</div>
-                    <div class="badge badge-outline">Products</div>
-                </div> -->
                     </div>
                 </a>
             </div>
