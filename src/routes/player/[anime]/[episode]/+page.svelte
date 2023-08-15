@@ -60,7 +60,6 @@
                 const user_settings_json = JSON.parse(user_settings);
                 if ("mirror" in user_settings_json) {
                     useMirror = user_settings_json.mirror;
-                    console.log("use mirror", useMirror);
                 }
             }
         }
@@ -168,7 +167,7 @@
             {#each sortedEpisodes as episode, i}
                 <a
                     class="join-item btn {episode.number === ep?.number
-                        ? 'btn-active'
+                        ? 'btn-primary'
                         : ''}"
                     href={`${base}/player/${anime}/${i + 1}`}
                     target="_self"
