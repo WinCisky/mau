@@ -22,6 +22,7 @@
     let watchTimer = 0;
 
     let fallbackVideo = "";
+    let useMirror = false;
 
     async function getVideoUrl(id: number) {
         const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
@@ -33,7 +34,7 @@
     $: sortedEpisodes = data.episodes.sort((a, b) => a.number - b.number);
 
     $: video =
-        ep && ep.link.includes("forbiddenlol")
+        ep && (ep.link.includes("forbiddenlol") || useMirror)
             ? fallbackVideo
             : ep
             ? ep.link
@@ -52,10 +53,19 @@
             }
         }, 1000);
 
-        if (typeof localStorage !== "undefined")
+        if (typeof localStorage !== "undefined") {
             volume = parseFloat(localStorage.getItem("volume") || "1");
+            const user_settings = localStorage.getItem("user_settings");
+            if (user_settings != null) {
+                const user_settings_json = JSON.parse(user_settings);
+                if ("mirror" in user_settings_json) {
+                    useMirror = user_settings_json.mirror;
+                    console.log("use mirror", useMirror);
+                }
+            }
+        }
 
-        if (ep?.link.includes("forbiddenlol")) {
+        if (ep?.link.includes("forbiddenlol") || useMirror) {
             getVideoUrl(videoId);
         }
     });

@@ -26,6 +26,7 @@
 
     $: dub = settings.dub ?? true;
     $: ona = settings.ona ?? true;
+    $: mirror = settings.mirror ?? false;
 </script>
 
 <div class="drawer">
@@ -68,32 +69,50 @@
         <label for="my-drawer" class="drawer-overlay" />
         <ul class="menu p-4 w-80 h-full bg-base-200 text-base-content">
             <!-- Sidebar content here -->
-            <h2 class="text-2xl font-bold mb-6">
-                Filters
-            </h2>
+            <h2 class="text-2xl font-bold mb-6">Filters</h2>
             <li class="form-control">
-                    <label class="cursor-pointer label flex justify-start gap-8 p-4">
-                        <span class="label-text">DUB</span>
-                        <input
-                            type="checkbox"
-                            class="toggle toggle-success"
-                            checked={dub}
-                            on:change={() => toggleUserPreference("dub")}
-                        />
-                    </label>
+                <label
+                    class="cursor-pointer label flex justify-start gap-8 p-4"
+                >
+                    <input
+                        type="checkbox"
+                        class="toggle toggle-success"
+                        checked={dub}
+                        on:change={() => toggleUserPreference("dub")}
+                    />
+                    <span class="label-text">DUB</span>
+                </label>
             </li>
-            
+
             <li class="form-control">
-                <label class="cursor-pointer label flex justify-start gap-8 p-4">
-                    <span class="label-text">ONA</span>
+                <label
+                    class="cursor-pointer label flex justify-start gap-8 p-4"
+                >
                     <input
                         type="checkbox"
                         class="toggle toggle-secondary"
                         checked={ona}
                         on:change={() => toggleUserPreference("ona")}
                     />
+                    <span class="label-text">ONA</span>
                 </label>
-        </li>
+            </li>
+
+            <h2 class="text-2xl font-bold my-6">Settings</h2>
+            
+            <li class="form-control">
+                <label
+                    class="cursor-pointer label flex justify-start gap-8 p-4"
+                >
+                    <input
+                        type="checkbox"
+                        class="toggle"
+                        checked={mirror}
+                        on:change={() => toggleUserPreference("mirror", false)}
+                    />
+                    <span class="label-text">Mirror</span>
+                </label>
+            </li>
         </ul>
     </div>
 </div>
