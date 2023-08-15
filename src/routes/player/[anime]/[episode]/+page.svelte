@@ -21,11 +21,25 @@
     let secondsWatched = 0;
     let watchTimer = 0;
 
+    let fallbackVideo = "";
+
+    async function getVideoUrl(id: number) {
+        const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
+        const data = await result.json();
+        fallbackVideo = data;
+    }
+
     $: ep = data.episodes.find((e) => e.number == parseInt(episode));
     $: sortedEpisodes = data.episodes.sort((a, b) => a.number - b.number);
 
-    $: video = ep ? ep.link : "";
+    $: video =
+        ep && ep.link.includes("forbiddenlol")
+            ? fallbackVideo
+            : ep
+            ? ep.link
+            : "";
     // $: video = "";
+    $: videoId = ep ? ep.mau_id : -1;
 
     onMount(() => {
         watchTimer = setInterval(() => {
@@ -40,6 +54,10 @@
 
         if (typeof localStorage !== "undefined")
             volume = parseFloat(localStorage.getItem("volume") || "1");
+
+        if (ep?.link.includes("forbiddenlol")) {
+            getVideoUrl(videoId);
+        }
     });
 
     onDestroy(() => {
@@ -70,7 +88,7 @@
                 }
                 if (!videos[ep?.anime_id ?? 0]?.includes(ep?.number ?? 0)) {
                     videos[ep?.anime_id ?? 0] = [
-                        ...(videos[ep?.anime_id ?? 0] || []) as number[],
+                        ...((videos[ep?.anime_id ?? 0] || []) as number[]),
                         ep?.number ?? 0,
                     ];
                     localStorage.setItem(
@@ -108,7 +126,9 @@
     <track kind="captions" />
 </video>
 
-<div class="flex flex-col lg:flex-row justify-between items-center align-middle gap-5 mt-6">
+<div
+    class="flex flex-col lg:flex-row justify-between items-center align-middle gap-5 mt-6"
+>
     <h2 class="text-2xl font-bold">
         {ep?.expand.anime.title
             ? ep.expand.anime.title

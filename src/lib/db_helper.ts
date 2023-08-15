@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 
-export async function getLatestEpisodes(pb: PocketBase) {
+export async function getLatestEpisodes(pb: PocketBase, page: number = 1) {
 
     let ona = true;
     let dub = true;
@@ -25,7 +25,7 @@ export async function getLatestEpisodes(pb: PocketBase) {
         }
     }
 
-    return pb.collection('mau_episodes').getList(1, 30, {
+    return pb.collection('mau_episodes').getList(page, 30, {
         sort: "-upload",
         expand: "anime",
         filter: filter,

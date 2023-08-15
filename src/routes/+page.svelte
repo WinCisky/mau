@@ -7,6 +7,7 @@
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     let episodes = [] as Episode[];
+    let page = 1;
 
     $: watched =
         typeof localStorage !== "undefined"
@@ -21,6 +22,16 @@
             });
         });
     });
+
+    function loadMore() {
+        getLatestEpisodes(pb, ++page).then((resultList) => {
+            episodes = episodes.concat(
+                resultList.items.map((item) => {
+                    return item as unknown as Episode;
+                })
+            );
+        });
+    }
 </script>
 
 <svelte:head>
@@ -100,5 +111,8 @@
                 </a>
             </div>
         {/each}
+        <button class="btn btn-neutral btn-block w-fit" on:click={loadMore}>
+            Load more
+        </button>
     {/if}
 </div>
