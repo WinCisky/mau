@@ -150,7 +150,7 @@
                 {#if sortedEpisodes.find((e) => e.number == i + 1)}
                     <a
                         class="join-item btn {i + 1 === ep.number
-                            ? 'btn-active'
+                            ? 'btn-primary'
                             : ''}"
                         href={`${base}/player/${anime}/${i + 1}`}
                         target="_self"
