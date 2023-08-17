@@ -2,6 +2,7 @@
     import { base } from "$app/paths";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
+    import { decodeHTMLEntities } from "$lib";
     import { getLatestEpisodes } from "$lib/db_helper";
     import type { Episode } from "$lib/db_helper";
 
@@ -104,8 +105,8 @@
                             class="break-words truncate md:overflow-auto md:whitespace-normal overflow-auto"
                         >
                             {episode.expand.anime.title
-                                ? episode.expand.anime.title
-                                : episode.expand.anime.title_eng}
+                                ? decodeHTMLEntities(episode.expand.anime.title)
+                                : decodeHTMLEntities(episode.expand.anime.title_eng)}
                         </p>
                     </div>
                 </a>

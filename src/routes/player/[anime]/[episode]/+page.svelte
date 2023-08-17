@@ -2,6 +2,7 @@
     import { base } from "$app/paths";
     import { onMount, onDestroy } from "svelte";
     import { page } from "$app/stores";
+    import { decodeHTMLEntities } from "$lib";
     import type { PageData } from "./$types";
     export let data: PageData;
 
@@ -113,8 +114,8 @@
 <svelte:head>
     <title
         >Mau - {ep?.expand.anime.title
-            ? ep?.expand.anime.title
-            : ep?.expand.anime.title_eng} - episode {episode}</title
+            ? decodeHTMLEntities(ep?.expand.anime.title)
+            : decodeHTMLEntities(ep?.expand.anime.title_eng)} - episode {episode}</title
     >
 </svelte:head>
 
@@ -140,8 +141,8 @@
 >
     <h2 class="text-2xl font-bold">
         {ep?.expand.anime.title
-            ? ep.expand.anime.title
-            : ep?.expand.anime.title_eng}
+            ? decodeHTMLEntities(ep.expand.anime.title)
+            : decodeHTMLEntities(ep?.expand.anime.title_eng)}
     </h2>
 
     <div class="join flex flex-wrap">
@@ -184,7 +185,7 @@
         <img
             class="w-full max-w-xs h-full object-contain"
             src={ep?.expand.anime.imageurl}
-            alt={ep?.expand.anime.title_eng}
+            alt={decodeHTMLEntities(ep?.expand.anime.title_eng)}
         />
         <span class="indicator-item indicator-start badge badge-neutral">
             {ep?.expand.anime.day}
@@ -199,7 +200,7 @@
         <p class="mt-4">
             Studio:
             <span class="font-bold mt-4">
-                {ep?.expand.anime.studio}
+                {decodeHTMLEntities(ep?.expand.anime.studio)}
             </span>
         </p>
         <div
@@ -273,7 +274,7 @@
         </div>
 
         <p class="mt-8">
-            {ep?.expand.anime.plot}
+            {decodeHTMLEntities(ep?.expand.anime.plot)}
         </p>
     </div>
 </div>
