@@ -1,0 +1,17 @@
+{
+    "short_name": "mau",
+    "name": "Mau",
+    "start_url": "/mau/",
+    "icons": [
+        {
+            "src": "/mau/favicon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "background-color": "#212121",
+    "display": "standalone",
+    "scope": "/mau/",
+    "theme_color": "#212121",
+    "description": "Mau is a free and personal anime streaming service."
+}

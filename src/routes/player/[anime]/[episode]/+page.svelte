@@ -20,7 +20,7 @@
 
     // rough estimate of how many seconds the user has watched
     let secondsWatched = 0;
-    let watchTimer = 0;
+    let watchTimer: NodeJS.Timeout;
 
     let fallbackVideo = "";
     let useMirror = false;
