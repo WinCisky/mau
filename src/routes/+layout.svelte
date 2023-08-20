@@ -11,7 +11,41 @@
     let searchResults: Anime[] = [];
 
     async function saveUserData() {
+        if (!pb.authStore.isValid) return;
+        if (typeof localStorage === "undefined") return;
+
         const userId = pb.authStore.model?.id;
+        const watchedVideos = JSON.parse(localStorage.getItem("watchedVideos") ?? "{}");
+
+        //get previous settings if any
+        const userData = await pb.collection('mau_users').getList(1, 1, {
+            filter: `id = ${userId}`,
+        });
+
+        if (userData.items.length > 0) {
+            // use previous settings
+            localStorage.setItem("user_settings", JSON.stringify({
+                "ona": userData.items[0].ona,
+                "dub": userData.items[0].dub,
+                "mirror": userData.items[0].mirror,
+            }));
+            // merge watched videos
+            const mergedWatchedVideos = {...userData.items[0].watched, ...watchedVideos};
+            // update watched videos
+            await pb.collection('mau_users').update(userData.items[0].id, {
+                "watched": mergedWatchedVideos
+            });
+        } else {
+            const user_settings = JSON.parse(localStorage.getItem("user_settings") ?? "{}");
+            const data = {
+                "ona": user_settings.ona ?? true,
+                "dub": user_settings.dub ?? true,
+                "mirror": user_settings.mirror ?? false,
+                "watched": watchedVideos,
+            };
+
+            await pb.collection('mau_users').create(data);
+        }
     }
 
     async function searchAnime() {
