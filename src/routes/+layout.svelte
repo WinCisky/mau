@@ -19,7 +19,7 @@
 
         //get previous settings if any
         const userData = await pb.collection('mau_users').getList(1, 1, {
-            filter: `id = ${userId}`,
+            filter: `user = '${userId}'`,
         });
 
         if (userData.items.length > 0) {
@@ -35,9 +35,12 @@
             await pb.collection('mau_users').update(userData.items[0].id, {
                 "watched": mergedWatchedVideos
             });
+            // // update local storage
+            // localStorage.setItem("watchedVideos", JSON.stringify(mergedWatchedVideos));
         } else {
             const user_settings = JSON.parse(localStorage.getItem("user_settings") ?? "{}");
             const data = {
+                "user": userId,
                 "ona": user_settings.ona ?? true,
                 "dub": user_settings.dub ?? true,
                 "mirror": user_settings.mirror ?? false,
@@ -46,6 +49,27 @@
 
             await pb.collection('mau_users').create(data);
         }
+    }
+
+    async function updateUserSettings() {
+        if (!pb.authStore.isValid) return;
+        if (typeof localStorage === "undefined") return;
+
+        const userId = pb.authStore.model?.id;
+
+        //get previous settings
+        const userData = await pb.collection('mau_users').getList(1, 1, {
+            filter: `user = '${userId}'`,
+        });
+
+        if (userData.items.length === 0) return;
+        const user_settings = JSON.parse(localStorage.getItem("user_settings") ?? "{}");
+
+        await pb.collection('mau_users').update(userData.items[0].id, {
+            "ona": user_settings.ona ?? true,
+            "dub": user_settings.dub ?? true,
+            "mirror": user_settings.mirror ?? false,
+        });
     }
 
     async function searchAnime() {
@@ -73,6 +97,10 @@
             settings[name] = !defaultValue;
         }
         localStorage.setItem("user_settings", JSON.stringify(settings));
+
+        //save user data
+        updateUserSettings();
+
         //redirect to home
         window.location.href = `${base}/`;
     }
@@ -219,8 +247,8 @@
                             saveUserData();
                         }
                     }
-                    // console.log(pb.authStore);
-                    window.location.href = `${base}/`;
+                    // // console.log(pb.authStore);
+                    // window.location.href = `${base}/`;
                 }}
             >
                 {pb.authStore.isValid ? "Logout" : "Login"}
