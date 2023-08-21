@@ -43,7 +43,7 @@
 <a href="{base}/player/ignore/me" class="hidden">&nbsp;</a>
 
 <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
-    {#if episodes}
+    {#if episodes && episodes.length > 0}
         {#each episodes as episode}
             <div class="indicator">
                 <span
@@ -115,5 +115,7 @@
         <button class="btn btn-neutral btn-block w-fit" on:click={loadMore}>
             Load more
         </button>
+    {:else}
+        <span class="loading loading-spinner loading-lg"></span>
     {/if}
 </div>

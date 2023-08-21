@@ -27,11 +27,12 @@
 
     let settings = {} as Record<string, boolean>;
 
-    onMount(() => {
+    onMount(async () => {
         settings = JSON.parse(
             localStorage.getItem("user_settings") || "{}"
         ) as Record<string, boolean>;
-        saveUserData(pb);
+        const newData = await saveUserData(pb);
+        if (newData) window.location.href = `${base}/`;
     });
 
     $: dub = settings.dub ?? true;
@@ -161,12 +162,14 @@
                     if (pb.authStore.isValid) {
                         pb.authStore.clear();
                         localStorage.setItem("synched", "false");
+                        localStorage.setItem("synchedDate", "1970-01-01T00:00:00.000Z");
                     } else {
                         await pb
                             .collection("users")
                             .authWithOAuth2({ provider: "github" });
                         if (pb.authStore.isValid) {
-                            saveUserData(pb);
+                            await saveUserData(pb);
+                            window.location.href = `${base}/`;
                         }
                     }
                     // console.log(pb.authStore);

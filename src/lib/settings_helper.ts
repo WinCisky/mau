@@ -21,12 +21,13 @@ export async function updateUserSettings(pb: PocketBase) {
     });
 }
 
-export async function saveUserData(pb: PocketBase) {
-    if (!pb.authStore.isValid) return;
-    if (typeof localStorage === "undefined") return;
+export async function saveUserData(pb: PocketBase) : Promise<boolean> {
+    if (!pb.authStore.isValid) return false;
+    if (typeof localStorage === "undefined") return false;
 
     let synched = (localStorage.getItem("synched") ?? "false") == "true";
-    if (synched) return;
+    let synchedDate = new Date(localStorage.getItem("synchedDate") ?? "1970-01-01T00:00:00.000Z");
+    if (synched && (new Date().getTime() - synchedDate.getTime()) < 1000 * 60 * 60 * 24) return false;
 
     const userId = pb.authStore.model?.id;
     const watchedVideos = JSON.parse(localStorage.getItem("watchedVideos") ?? "{}");
@@ -78,6 +79,8 @@ export async function saveUserData(pb: PocketBase) {
     }
 
     localStorage.setItem("synched", "true");
+    localStorage.setItem("synchedDate", new Date().toISOString());
+    return true;
 }
 
 export function toggleUserPreference(pb: PocketBase, name: string, defaultValue: boolean = true) {
