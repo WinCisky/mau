@@ -3,6 +3,8 @@
     import { base } from "$app/paths";
     import { onMount } from "svelte";
     import type { Anime } from "$lib/db_helper";
+    import { searchAnime } from "$lib/db_helper";
+    import { saveUserData, toggleUserPreference } from "$lib/settings_helper";
     import "../app.css";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
@@ -10,98 +12,16 @@
     let searchText = "";
     let searchResults: Anime[] = [];
 
-    async function saveUserData() {
-        if (!pb.authStore.isValid) return;
-        if (typeof localStorage === "undefined") return;
-
-        const userId = pb.authStore.model?.id;
-        const watchedVideos = JSON.parse(localStorage.getItem("watchedVideos") ?? "{}");
-
-        //get previous settings if any
-        const userData = await pb.collection('mau_users').getList(1, 1, {
-            filter: `user = '${userId}'`,
-        });
-
-        if (userData.items.length > 0) {
-            // use previous settings
-            localStorage.setItem("user_settings", JSON.stringify({
-                "ona": userData.items[0].ona,
-                "dub": userData.items[0].dub,
-                "mirror": userData.items[0].mirror,
-            }));
-            // merge watched videos
-            const mergedWatchedVideos = {...userData.items[0].watched, ...watchedVideos};
-            // update watched videos
-            await pb.collection('mau_users').update(userData.items[0].id, {
-                "watched": mergedWatchedVideos
-            });
-            // // update local storage
-            // localStorage.setItem("watchedVideos", JSON.stringify(mergedWatchedVideos));
-        } else {
-            const user_settings = JSON.parse(localStorage.getItem("user_settings") ?? "{}");
-            const data = {
-                "user": userId,
-                "ona": user_settings.ona ?? true,
-                "dub": user_settings.dub ?? true,
-                "mirror": user_settings.mirror ?? false,
-                "watched": watchedVideos,
-            };
-
-            await pb.collection('mau_users').create(data);
-        }
-    }
-
-    async function updateUserSettings() {
-        if (!pb.authStore.isValid) return;
-        if (typeof localStorage === "undefined") return;
-
-        const userId = pb.authStore.model?.id;
-
-        //get previous settings
-        const userData = await pb.collection('mau_users').getList(1, 1, {
-            filter: `user = '${userId}'`,
-        });
-
-        if (userData.items.length === 0) return;
-        const user_settings = JSON.parse(localStorage.getItem("user_settings") ?? "{}");
-
-        await pb.collection('mau_users').update(userData.items[0].id, {
-            "ona": user_settings.ona ?? true,
-            "dub": user_settings.dub ?? true,
-            "mirror": user_settings.mirror ?? false,
-        });
-    }
-
-    async function searchAnime() {
-        const resultList = await pb.collection("mau_anime").getList(1, 20, {
-            filter: `title_eng ~ '${searchText}' || title ~ '${searchText}'`,
-            sort: "visite",
-        });
-        searchResults = resultList.items.map((item) => {
-            return item as unknown as Anime;
-        });
-    }
-
     $: if (searchText.length >= 3) {
-        searchAnime();
+        searchAnime(pb, searchText).then((res) => {
+            searchResults = res;
+        });
     } else {
         searchResults = [];
     }
 
-    function toggleUserPreference(name: string, defaultValue: boolean = true) {
-        const preference = localStorage.getItem("user_settings");
-        const settings = JSON.parse(preference || "{}");
-        if (name in settings) {
-            settings[name] = !settings[name];
-        } else {
-            settings[name] = !defaultValue;
-        }
-        localStorage.setItem("user_settings", JSON.stringify(settings));
-
-        //save user data
-        updateUserSettings();
-
-        //redirect to home
+    function togglePreference(name: string, defaultValue: boolean = true) {
+        toggleUserPreference(pb, name, defaultValue);
         window.location.href = `${base}/`;
     }
 
@@ -111,6 +31,7 @@
         settings = JSON.parse(
             localStorage.getItem("user_settings") || "{}"
         ) as Record<string, boolean>;
+        saveUserData(pb);
     });
 
     $: dub = settings.dub ?? true;
@@ -191,7 +112,7 @@
                         type="checkbox"
                         class="toggle toggle-success"
                         checked={dub}
-                        on:change={() => toggleUserPreference("dub")}
+                        on:change={() => togglePreference("dub")}
                     />
                     <span class="label-text">DUB</span>
                 </label>
@@ -205,7 +126,7 @@
                         type="checkbox"
                         class="toggle toggle-secondary"
                         checked={ona}
-                        on:change={() => toggleUserPreference("ona")}
+                        on:change={() => togglePreference("ona")}
                     />
                     <span class="label-text">ONA</span>
                 </label>
@@ -221,7 +142,7 @@
                         type="checkbox"
                         class="toggle"
                         checked={mirror}
-                        on:change={() => toggleUserPreference("mirror", false)}
+                        on:change={() => togglePreference("mirror", false)}
                     />
                     <span class="label-text">Mirror</span>
                 </label>
@@ -239,16 +160,17 @@
                 on:click={async () => {
                     if (pb.authStore.isValid) {
                         pb.authStore.clear();
+                        localStorage.setItem("synched", "false");
                     } else {
                         await pb
                             .collection("users")
                             .authWithOAuth2({ provider: "github" });
                         if (pb.authStore.isValid) {
-                            saveUserData();
+                            saveUserData(pb);
                         }
                     }
-                    // // console.log(pb.authStore);
-                    // window.location.href = `${base}/`;
+                    // console.log(pb.authStore);
+                    window.location.href = `${base}/`;
                 }}
             >
                 {pb.authStore.isValid ? "Logout" : "Login"}

@@ -1,5 +1,15 @@
 import type PocketBase from "pocketbase";
 
+export async function searchAnime(pb: PocketBase, searchText: string) {
+    const resultList = await pb.collection("mau_anime").getList(1, 20, {
+        filter: `title_eng ~ '${searchText}' || title ~ '${searchText}'`,
+        sort: "visite",
+    });
+    return resultList.items.map((item) => {
+        return item as unknown as Anime;
+    });
+}
+
 export async function getLatestEpisodes(pb: PocketBase, page: number = 1) {
 
     let ona = true;
