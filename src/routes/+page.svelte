@@ -4,24 +4,33 @@
     import { onMount } from "svelte";
     import { decodeHTMLEntities } from "$lib";
     import { getLatestEpisodes } from "$lib/db_helper";
+    import { getUserWatchedVideos } from "$lib/settings_helper";
     import type { Episode } from "$lib/db_helper";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     let episodes = [] as Episode[];
     let page = 1;
+    let watchedEspisodes = {} as Record<string, number[]>;
 
-    $: watched =
-        typeof localStorage !== "undefined"
-            ? JSON.parse(localStorage.getItem("watchedVideos") || "{}")
-            : null;
+    $: watched = watchedEspisodes;
 
-    onMount(() => {
+    onMount(async () => {
         getLatestEpisodes(pb).then((resultList) => {
             // console.log(JSON.stringify(resultList, null, 2));
             episodes = resultList.items.map((item) => {
                 return item as unknown as Episode;
             });
         });
+
+        // if (typeof localStorage !== "undefined")
+        //     watchedEspisodes = JSON.parse(
+        //         localStorage.getItem("watchedVideos") || "{}"
+        //     );
+        if (pb.authStore.isValid) {
+            // console.time('getUserWatchedVideos');
+            watchedEspisodes = await getUserWatchedVideos(pb);
+            // console.timeEnd('getUserWatchedVideos');
+        }
     });
 
     function loadMore() {
@@ -106,7 +115,9 @@
                         >
                             {episode.expand.anime.title
                                 ? decodeHTMLEntities(episode.expand.anime.title)
-                                : decodeHTMLEntities(episode.expand.anime.title_eng)}
+                                : decodeHTMLEntities(
+                                      episode.expand.anime.title_eng
+                                  )}
                         </p>
                     </div>
                 </a>
@@ -116,6 +127,6 @@
             Load more
         </button>
     {:else}
-        <span class="loading loading-spinner loading-lg"></span>
+        <span class="loading loading-spinner loading-lg" />
     {/if}
 </div>

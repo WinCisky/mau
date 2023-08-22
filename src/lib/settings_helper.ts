@@ -42,6 +42,37 @@ export async function updateUserSettings(pb: PocketBase) {
   });
 }
 
+export async function getUserWatchedVideos(pb: PocketBase) {
+  if (!pb.authStore.isValid) return {};
+  if (typeof localStorage === "undefined") return {};
+
+  const watchedVideos = JSON.parse(
+    localStorage.getItem("watchedVideos") ?? "{}",
+  );
+
+  const userId = pb.authStore.model?.id;
+  const userData = await pb.collection("mau_users").getList(1, 1, {
+    filter: `user = '${userId}'`,
+  });
+
+  if (userData.items.length > 0) {
+    localStorage.setItem(
+      "user_settings",
+      JSON.stringify({
+        "ona": userData.items[0].ona,
+        "dub": userData.items[0].dub,
+        "mirror": userData.items[0].mirror,
+      }),
+    );
+    const mergedWatchedVideos = mergeWatchedVideos(
+      userData.items[0].watched,
+      watchedVideos,
+    );
+    return mergedWatchedVideos;
+  }
+  return watchedVideos;
+}
+
 export async function saveUserData(pb: PocketBase): Promise<boolean> {
   if (!pb.authStore.isValid) return false;
   if (typeof localStorage === "undefined") return false;
