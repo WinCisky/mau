@@ -3,8 +3,12 @@
     import { onMount, onDestroy } from "svelte";
     import { page } from "$app/stores";
     import { decodeHTMLEntities } from "$lib";
+    import { saveUserData } from "$lib/settings_helper";
+    import PocketBase from "pocketbase";
     import type { PageData } from "./$types";
     export let data: PageData;
+
+    const pb = new PocketBase("https://dev.opentrust.it/");
 
     const WATCH_TRESHOLD = 0.75;
     const { anime, episode } = $page.params;
@@ -62,12 +66,15 @@
                 if ("mirror" in user_settings_json) {
                     useMirror = user_settings_json.mirror;
                 }
+                saveUserData(pb);
             }
         }
 
         if (ep?.link.includes("forbiddenlol") || useMirror) {
             getVideoUrl(videoId);
         }
+
+        console.log(ep?.anime_id );
     });
 
     onDestroy(() => {

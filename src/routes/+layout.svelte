@@ -31,8 +31,8 @@
         settings = JSON.parse(
             localStorage.getItem("user_settings") || "{}"
         ) as Record<string, boolean>;
-        const newData = await saveUserData(pb);
-        if (newData) window.location.href = `${base}/`;
+        await saveUserData(pb);
+        // if (newData) window.location.href = `${base}/`;
     });
 
     $: dub = settings.dub ?? true;
