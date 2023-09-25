@@ -27,6 +27,7 @@
         //         localStorage.getItem("watchedVideos") || "{}"
         //     );
         if (pb.authStore.isValid) {
+            await pb.collection('users').authRefresh();
             // console.time('getUserWatchedVideos');
             watchedEspisodes = await getUserWatchedVideos(pb);
             // console.timeEnd('getUserWatchedVideos');
