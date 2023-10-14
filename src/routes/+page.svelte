@@ -2,10 +2,18 @@
     import { base } from "$app/paths";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
-    import { decodeHTMLEntities } from "$lib";
+    import { decodeHTMLEntities, getCurrentSeason } from "$lib";
     import { getLatestEpisodes } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
     import type { Episode } from "$lib/db_helper";
+
+    import summer from '$lib/assets/icons/summer.svg'
+    import winter from '$lib/assets/icons/winter.svg'
+    import autumn from '$lib/assets/icons/autumn.svg'
+    import spring from '$lib/assets/icons/spring.svg'
+    import tea from '$lib/assets/icons/tea.svg'
+
+    const currentSeason = getCurrentSeason(winter, spring, summer, autumn);
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     let episodes = [] as Episode[];
@@ -52,6 +60,34 @@
 <!-- needed for static compilation -->
 <a href="{base}/player/ignore/me" class="hidden">&nbsp;</a>
 
+<div class="flex justify-center align-middle mb-10">
+    <ul class="menu bg-base-200 lg:menu-horizontal rounded-box tabs tabs-boxed gap-5">
+        <li class="tab tab-active h-auto p-0">
+          <a href="{base}/">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+            Latest
+            <!-- <span class="badge badge-sm">99+</span> -->
+          </a>
+        </li>
+        <li class="tab h-auto p-0">
+          <a href="{base}/seasonal">
+            <svg class="w-5 h-5">
+                <use href="{currentSeason}#season-img"></use>
+             </svg>
+            Seasonal
+          </a>
+        </li>
+        <li class="tab h-auto p-0">
+          <a href="{base}/followed">
+            <svg class="w-5 h-5">
+                <use href="{tea}#tea-img"></use>
+             </svg>
+            Followed
+          </a>
+        </li>
+      </ul>
+</div>
+
 <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
     {#if episodes && episodes.length > 0}
         {#each episodes as episode}
@@ -89,7 +125,7 @@
                     <!-- add episode number -->
                     <figure>
                         <img
-                            class="w-full h-48 md:h-72 object-cover md:object-contain"
+                            class="w-full h-48 md:h-72 object-cover"
                             src={episode.expand.anime.imageurl}
                             alt={episode.expand.anime.title}
                         />

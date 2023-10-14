@@ -44,6 +44,7 @@ export async function updateUserSettings(pb: PocketBase) {
 
 export async function getUserWatchedVideos(pb: PocketBase) {
   if (!pb.authStore.isValid) return {};
+  await pb.collection("users").authRefresh();
   if (typeof localStorage === "undefined") return {};
 
   const watchedVideos = JSON.parse(
