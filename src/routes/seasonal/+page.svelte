@@ -10,6 +10,7 @@
     import spring from "$lib/assets/icons/spring.svg";
     import tea from "$lib/assets/icons/tea.svg";
     import home from "$lib/assets/icons/home.svg";
+    import hearth from "$lib/assets/icons/hearth.svg";
 
     const currentSeason = getCurrentSeason(winter, spring, summer, fall);
     const seasonIndex = getSeasonIndex();
@@ -18,20 +19,66 @@
     const pb = new PocketBase("https://dev.opentrust.it/");
     let seasonalAnime = [] as any[];
 
+    let followedAnime = [] as any[];
+
     onMount(async () => {
         const seasonYearResult = await pb
-            .collection("mal_seasonal")
+            .collection("mau_seasonal")
             .getFullList({
                 filter: `season = ${seasonIndex} && year = ${year}`,
             });
         seasonalAnime = seasonYearResult;
-        console.log(seasonYearResult);
+        // console.log(seasonYearResult);
+        let toCheck = [];
+        for (const anime of seasonalAnime) {
+            toCheck.push(anime.mal_id);
+        }
+        const followedAnimeResult = await pb
+            .collection("mau_follows")
+            .getFullList({
+                filter: `year = ${year} && season = ${seasonIndex} && user_id = '${pb.authStore.model?.id}'`,
+            });
+        followedAnime = followedAnimeResult;
     });
+
+    function isAnimeFollowed(anime: any) {
+        // return true;
+        return followedAnime.some((a) => a.mal_id === anime.mal_id);
+    }
+
+    function followAnime(anime: any) {
+        if (isAnimeFollowed(anime)) {
+            followedAnime = followedAnime.filter(
+                (a) => a.mal_id !== anime.mal_id
+            );
+            // get from db
+            pb.collection("mau_follows")
+                .getList(1, 1, {
+                    filter: `mal_id = '${anime.mal_id}' && user_id = '${pb.authStore.model?.id}'`,
+                })
+                .then((result) => {
+                    if (result.items.length > 0) {
+                        pb.collection("mau_follows").delete(result.items[0].id);
+                    }
+                });
+            return;
+        } else {
+            followedAnime = [...followedAnime, anime];
+            // save to db
+            const toCreate = {
+                mal_id: anime.mal_id,
+                user_id: pb.authStore.model?.id,
+                year: year,
+                season: seasonIndex,
+            };
+            pb.collection("mau_follows").create(toCreate);
+        }
+    }
 </script>
 
 <div class="flex justify-center align-middle mb-10">
     <ul
-        class="menu bg-base-200 lg:menu-horizontal rounded-box tabs tabs-boxed gap-5"
+        class="menu bg-base-200 sm:menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
     >
         <li class="tab tab-active h-auto p-0">
             <a href="{base}/seasonal">
@@ -64,7 +111,29 @@
 <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
     {#if seasonalAnime}
         {#each seasonalAnime as anime}
-            <div class="indicator">
+            <div
+                class="indicator {followedAnime.some(
+                    (a) => a.mal_id === anime.mal_id
+                )
+                    ? ''
+                    : 'opacity-80'}"
+            >
+                <span class="indicator-item indicator-end">
+                    <button
+                        class="btn btn-circle"
+                        on:click={() => followAnime(anime)}
+                    >
+                        <svg
+                            class="w-6 h-6 {followedAnime.some(
+                                (a) => a.mal_id === anime.mal_id
+                            )
+                                ? 'fill-red-600'
+                                : 'stroke-base-content fill-none'}"
+                        >
+                            <use href="{hearth}#hearth" />
+                        </svg>
+                    </button>
+                </span>
                 <a class="card w-36 md:w-52 bg-base-100 shadow-xl" href="#1">
                     <figure>
                         <img

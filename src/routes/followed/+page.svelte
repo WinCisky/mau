@@ -13,7 +13,7 @@
 </script>
 
 <div class="flex justify-center align-middle mb-10">
-    <ul class="menu bg-base-200 lg:menu-horizontal rounded-box tabs tabs-boxed gap-5">
+    <ul class="menu bg-base-200 sm:menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center">
         <li class="tab h-auto p-0">
           <a href="{base}/seasonal">
             <svg class="w-5 h-5">

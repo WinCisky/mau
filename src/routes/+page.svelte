@@ -36,10 +36,16 @@
         //         localStorage.getItem("watchedVideos") || "{}"
         //     );
         if (pb.authStore.isValid) {
-            await pb.collection("users").authRefresh();
             // console.time('getUserWatchedVideos');
             watchedEspisodes = await getUserWatchedVideos(pb);
             // console.timeEnd('getUserWatchedVideos');
+        } else if ( // refresh token
+            typeof pb.authStore.token !== "undefined" &&
+            pb.authStore.token !== null &&
+            pb.authStore.token !== ""
+        ) {
+            pb.collection("users").authWithOAuth2({ provider: "github" });
+            // pb.collection("users").authRefresh();
         }
     });
 
@@ -63,7 +69,7 @@
 
 <div class="flex justify-center align-middle mb-10">
     <ul
-        class="menu bg-base-200 lg:menu-horizontal rounded-box tabs tabs-boxed gap-5"
+        class="menu bg-base-200 sm:menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
     >
         <li class="tab h-auto p-0">
             <a href="{base}/seasonal">
