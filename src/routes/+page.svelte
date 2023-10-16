@@ -39,7 +39,8 @@
             // console.time('getUserWatchedVideos');
             watchedEspisodes = await getUserWatchedVideos(pb);
             // console.timeEnd('getUserWatchedVideos');
-        } else if ( // refresh token
+        } else if (
+            // refresh token
             typeof pb.authStore.token !== "undefined" &&
             pb.authStore.token !== null &&
             pb.authStore.token !== ""
@@ -69,14 +70,14 @@
 
 <div class="flex justify-center align-middle mb-10">
     <ul
-        class="menu bg-base-200 sm:menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
+        class="menu bg-base-200 menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
     >
         <li class="tab h-auto p-0">
             <a href="{base}/seasonal">
                 <svg class="w-5 h-5">
                     <use href="{currentSeason}#season-img" />
                 </svg>
-                Seasonal
+                <div class="hidden sm:block">Seasonal</div>
             </a>
         </li>
         <li class="tab tab-active h-auto p-0">
@@ -84,8 +85,10 @@
                 <svg class="w-5 h-5">
                     <use href="{home}#home-img" />
                 </svg>
-                Latest
-                <!-- <span class="badge badge-sm">99+</span> -->
+                <div class="hidden sm:block">
+                    Latest
+                    <!-- <span class="badge badge-sm">99+</span> -->
+                </div>
             </a>
         </li>
         <li class="tab h-auto p-0">
@@ -93,7 +96,7 @@
                 <svg class="w-5 h-5">
                     <use href="{tea}#tea-img" />
                 </svg>
-                Followed
+                <div class="hidden sm:block">Followed</div>
             </a>
         </li>
     </ul>

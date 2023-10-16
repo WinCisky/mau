@@ -16,6 +16,8 @@
     const seasonIndex = getSeasonIndex();
     const year = new Date().getFullYear();
 
+    $: loggedIn = pb.authStore.isValid;
+
     const pb = new PocketBase("https://dev.opentrust.it/");
     let seasonalAnime = [] as any[];
 
@@ -78,14 +80,14 @@
 
 <div class="flex justify-center align-middle mb-10">
     <ul
-        class="menu bg-base-200 sm:menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
+        class="menu bg-base-200 menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
     >
         <li class="tab tab-active h-auto p-0">
             <a href="{base}/seasonal">
                 <svg class="w-5 h-5">
                     <use href="{currentSeason}#season-img" />
                 </svg>
-                Seasonal
+                <div class="hidden sm:block">Seasonal</div>
             </a>
         </li>
         <li class="tab h-auto p-0">
@@ -93,8 +95,11 @@
                 <svg class="w-5 h-5">
                     <use href="{home}#home-img" />
                 </svg>
-                Latest
-                <!-- <span class="badge badge-sm">99+</span> -->
+
+                <div class="hidden sm:block">
+                    Latest
+                    <!-- <span class="badge badge-sm">99+</span> -->
+                </div>
             </a>
         </li>
         <li class="tab h-auto p-0">
@@ -102,57 +107,67 @@
                 <svg class="w-5 h-5">
                     <use href="{tea}#tea-img" />
                 </svg>
-                Followed
+                <div class="hidden sm:block">Followed</div>
             </a>
         </li>
     </ul>
 </div>
 
-<div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
-    {#if seasonalAnime}
-        {#each seasonalAnime as anime}
-            <div
-                class="indicator {followedAnime.some(
-                    (a) => a.mal_id === anime.mal_id
-                )
-                    ? ''
-                    : 'opacity-80'}"
-            >
-                <span class="indicator-item indicator-end">
-                    <button
-                        class="btn btn-circle"
-                        on:click={() => followAnime(anime)}
+{#if loggedIn}
+    <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
+        {#if seasonalAnime}
+            {#each seasonalAnime as anime}
+                <div
+                    class="indicator {followedAnime.some(
+                        (a) => a.mal_id === anime.mal_id
+                    )
+                        ? ''
+                        : 'opacity-80'}"
+                >
+                    <span class="indicator-item indicator-end">
+                        <button
+                            class="btn btn-circle"
+                            on:click={() => followAnime(anime)}
+                        >
+                            <svg
+                                class="w-6 h-6 {followedAnime.some(
+                                    (a) => a.mal_id === anime.mal_id
+                                )
+                                    ? 'fill-red-600'
+                                    : 'stroke-base-content fill-none'}"
+                            >
+                                <use href="{hearth}#hearth" />
+                            </svg>
+                        </button>
+                    </span>
+                    <a
+                        class="card w-36 md:w-52 bg-base-100 shadow-xl"
+                        href="#1"
                     >
-                        <svg
-                            class="w-6 h-6 {followedAnime.some(
-                                (a) => a.mal_id === anime.mal_id
-                            )
-                                ? 'fill-red-600'
-                                : 'stroke-base-content fill-none'}"
-                        >
-                            <use href="{hearth}#hearth" />
-                        </svg>
-                    </button>
-                </span>
-                <a class="card w-36 md:w-52 bg-base-100 shadow-xl" href="#1">
-                    <figure>
-                        <img
-                            class="w-full h-48 md:h-72 object-cover"
-                            src={anime.img}
-                            alt={anime.title}
-                        />
-                    </figure>
-                    <div class="card-body">
-                        <p
-                            class="break-words truncate md:overflow-auto md:whitespace-normal overflow-auto"
-                        >
-                            {anime.title}
-                        </p>
-                    </div>
-                </a>
-            </div>
-        {/each}
-    {:else}
-        <span class="loading loading-spinner loading-lg" />
-    {/if}
-</div>
+                        <figure>
+                            <img
+                                class="w-full h-48 md:h-72 object-cover"
+                                src={anime.img}
+                                alt={anime.title}
+                            />
+                        </figure>
+                        <div class="card-body">
+                            <p
+                                class="break-words truncate md:overflow-auto md:whitespace-normal overflow-auto"
+                            >
+                                {anime.title}
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            {/each}
+        {:else}
+            <span class="loading loading-spinner loading-lg" />
+        {/if}
+    </div>
+{:else}
+    <!-- log in button -->
+    <div class="flex justify-center align-middle mb-10">
+        <a href="{base}/login" class="btn btn-primary"> Log in </a>
+    </div>
+{/if}
