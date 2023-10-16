@@ -3,6 +3,7 @@
     import { getCurrentSeason, getSeasonIndex } from "$lib";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
+    import { saveUserData } from "$lib/settings_helper";
 
     import summer from "$lib/assets/icons/summer.svg";
     import winter from "$lib/assets/icons/winter.svg";
@@ -168,6 +169,16 @@
 {:else}
     <!-- log in button -->
     <div class="flex justify-center align-middle mb-10">
-        <a href="{base}/login" class="btn btn-primary"> Log in </a>
+        <button class="btn btn-primary" on:click={async () => {
+                await pb
+                    .collection("users")
+                    .authWithOAuth2({ provider: "github" });
+                if (pb.authStore.isValid) {
+                    await saveUserData(pb);
+                    window.location.href = `${base}/seasonal`;
+                }
+            // console.log(pb.authStore);
+            window.location.href = `${base}/seasonal`;
+        }}> Log in </button>
     </div>
 {/if}
