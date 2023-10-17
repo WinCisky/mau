@@ -42,6 +42,61 @@ export async function getLatestEpisodes(pb: PocketBase, page: number = 1) {
     });
 }
 
+export async function getLatestFollowedEpisodes(pb: PocketBase, page: number = 1) {
+
+    let ona = true;
+    let dub = true;
+    let filter = "public=1";
+
+    if (typeof localStorage != "undefined") {
+        const user_settings = localStorage.getItem("user_settings");
+        if (user_settings != null) {
+            const user_settings_json = JSON.parse(user_settings);
+            if ("ona" in user_settings_json) {
+                ona = user_settings_json.ona;
+            }
+            if ("dub" in user_settings_json) {
+                dub = user_settings_json.dub;
+            }
+            if (!ona) {
+                filter += " && anime.type!='ONA'";
+            }
+            if (!dub) {
+                filter += " && anime.dub=0";
+            }
+        }
+    }
+
+    // TODO: if too slow imprtve with a join
+
+    const user_id = pb.authStore.model?.id;
+
+    // get followed anime
+    const followed_anime = await pb.collection('mau_follows').getList(1, 100, {
+        filter: `user_id='${user_id}'`,
+    });
+
+    const anime = [];
+
+    for (const followed of followed_anime.items) {
+        const anime_episodes = await pb.collection('mau_episodes').getList(page, 1, {
+            filter: `anime.mal_id='${followed.mal_id}' && ${filter}`,
+            sort: "-upload",
+            expand: "anime",
+        });
+        if (anime_episodes.items.length > 0) {
+            anime.push(anime_episodes.items[0]);
+        }
+    }
+
+    // sort by upload date
+    anime.sort((a, b) => {
+        return b.upload.localeCompare(a.upload);
+    });
+
+    return anime;
+}
+
 export interface Episode {
     anime: string
     anime_id: number
