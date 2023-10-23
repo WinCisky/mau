@@ -92,12 +92,12 @@
     }
 
     async function openModal(anime: any) {
+        // @ts-ignore
+        my_modal_2.showModal();
         // const animeData = await getAnimeFromMalId(anime.mal_id);
         modalAnimeDescription = anime.plot;
         modalAnimeTitle = anime.title;
         modalAnimeImage = anime.img;
-        // @ts-ignore
-        my_modal_2.showModal();
     }
 </script>
 
@@ -140,18 +140,13 @@
     <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
         {#if seasonalAnime}
             {#each seasonalAnime as anime}
-                <div
+                <button
                     class="indicator {followedAnime.some(
                         (a) => a.mal_id === anime.mal_id
                     )
                         ? ''
                         : 'opacity-80'}"
                     on:click={() => openModal(anime)}
-                    on:keydown={() => {}}
-                    on:keyup={() => {}}
-                    role="button"
-                    tabindex="0"
-
                 >
                     <span class="indicator-item indicator-end">
                         <button
@@ -170,7 +165,7 @@
                         </button>
                     </span>
                     <div
-                        class="card w-36 md:w-52 bg-base-100 shadow-xl"
+                        class="card w-36 md:w-52 bg-base-100 shadow-xl h-full"
                     >
                         <figure>
                             <img
@@ -187,7 +182,7 @@
                             </p>
                         </div>
                     </div>
-                </div>
+                </button>
             {/each}
             <dialog id="my_modal_2" class="modal">
                 <div class="modal-box p-0">
