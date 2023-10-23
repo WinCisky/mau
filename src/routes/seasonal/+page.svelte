@@ -20,9 +20,13 @@
     $: loggedIn = pb.authStore.isValid;
 
     const pb = new PocketBase("https://dev.opentrust.it/");
-    let seasonalAnime = [] as any[];
 
+    let seasonalAnime = [] as any[];
     let followedAnime = [] as any[];
+
+    let modalAnimeTitle = "";
+    let modalAnimeDescription = "";
+    let modalAnimeImage = "";
 
     onMount(async () => {
         const seasonYearResult = await pb
@@ -44,9 +48,18 @@
         followedAnime = followedAnimeResult;
     });
 
+    function selectAnimeForModal(anime : string) {
+        console.log(anime);
+    }
+
     function isAnimeFollowed(anime: any) {
         // return true;
         return followedAnime.some((a) => a.mal_id === anime.mal_id);
+    }
+
+    async function getAnimeFromMalId(mal_id: string) {
+        return await pb.collection("mau_anime")
+            .getFirstListItem(`mal_id = ${mal_id}`);
     }
 
     function followAnime(anime: any) {
@@ -76,6 +89,15 @@
             };
             pb.collection("mau_follows").create(toCreate);
         }
+    }
+
+    async function openModal(anime: any) {
+        // const animeData = await getAnimeFromMalId(anime.mal_id);
+        modalAnimeDescription = anime.plot;
+        modalAnimeTitle = anime.title;
+        modalAnimeImage = anime.img;
+        // @ts-ignore
+        my_modal_2.showModal();
     }
 </script>
 
@@ -124,6 +146,12 @@
                     )
                         ? ''
                         : 'opacity-80'}"
+                    on:click={() => openModal(anime)}
+                    on:keydown={() => {}}
+                    on:keyup={() => {}}
+                    role="button"
+                    tabindex="0"
+
                 >
                     <span class="indicator-item indicator-end">
                         <button
@@ -141,9 +169,8 @@
                             </svg>
                         </button>
                     </span>
-                    <a
+                    <div
                         class="card w-36 md:w-52 bg-base-100 shadow-xl"
-                        href="#1"
                     >
                         <figure>
                             <img
@@ -159,9 +186,31 @@
                                 {anime.title}
                             </p>
                         </div>
-                    </a>
+                    </div>
                 </div>
             {/each}
+            <dialog id="my_modal_2" class="modal">
+                <div class="modal-box p-0">
+                    <div class="card w-full bg-base-100 shadow-xl image-full h-[60vh]">
+                        <figure>
+                            <img
+                                src="{modalAnimeImage}"
+                                alt="Shoes"
+                                class="w-full"
+                            />
+                        </figure>
+                        <div class="card-body">
+                            <h2 class="card-title">{modalAnimeTitle}</h2>
+                            <p>
+                                {modalAnimeDescription}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
         {:else}
             <span class="loading loading-spinner loading-lg" />
         {/if}
@@ -169,7 +218,9 @@
 {:else}
     <!-- log in button -->
     <div class="flex justify-center align-middle mb-10">
-        <button class="btn btn-primary" on:click={async () => {
+        <button
+            class="btn btn-primary"
+            on:click={async () => {
                 await pb
                     .collection("users")
                     .authWithOAuth2({ provider: "github" });
@@ -177,8 +228,11 @@
                     await saveUserData(pb);
                     window.location.href = `${base}/seasonal`;
                 }
-            // console.log(pb.authStore);
-            window.location.href = `${base}/seasonal`;
-        }}> Log in </button>
+                // console.log(pb.authStore);
+                window.location.href = `${base}/seasonal`;
+            }}
+        >
+            Log in
+        </button>
     </div>
 {/if}
