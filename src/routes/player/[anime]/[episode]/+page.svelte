@@ -30,7 +30,8 @@
     let useMirror = false;
 
     async function getVideoUrl(id: number) {
-        const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
+        // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
+        const result = await fetch(`https://mau-backend.deno.dev/api/mirror/${id}`);
         const data = await result.json();
         fallbackVideo = data;
     }
