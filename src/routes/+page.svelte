@@ -2,7 +2,7 @@
     import { base } from "$app/paths";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
-    import { decodeHTMLEntities, getCurrentSeason } from "$lib";
+    import { decodeHTMLEntities, getCurrentSeason, getSeasonIndex } from "$lib";
     import { getLatestEpisodes } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
     import type { Episode } from "$lib/db_helper";
@@ -17,7 +17,10 @@
     const currentSeason = getCurrentSeason(winter, spring, summer, fall);
 
     const pb = new PocketBase("https://dev.opentrust.it/");
+    const year = new Date().getFullYear();
+    const seasonIndex = getSeasonIndex();
     let episodes = [] as Episode[];
+    let followedAnime = [] as any[];
     let page = 1;
     let watchedEspisodes = {} as Record<string, number[]>;
 
@@ -30,6 +33,13 @@
                 return item as unknown as Episode;
             });
         });
+
+        const followedAnimeResult = await pb
+            .collection("mau_follows")
+            .getFullList({
+                filter: `year = ${year} && season = ${seasonIndex} && user_id = '${pb.authStore.model?.id}'`,
+            });
+        followedAnime = followedAnimeResult;
 
         // if (typeof localStorage !== "undefined")
         //     watchedEspisodes = JSON.parse(
@@ -129,48 +139,24 @@
                     </span>
                 {/if}
                 <a
-                    class="card w-36 md:w-52 bg-base-100 shadow-xl
+                    class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl
                         {watched &&
                     watched[episode.anime_id]?.includes(episode.number)
                         ? 'opacity-60'
+                        : ''}
+                        {followedAnime.some(
+                        (a) => a.mal_id === episode.expand.anime.mal_id
+                    )
+                        ? 'border-2 gradient-border'
                         : ''}"
                     href={`${base}/player/${episode.expand.anime.slug}/${episode.number}`}
                 >
                     <!-- add episode number -->
-                    <figure>
-                        <img
-                            class="w-full h-48 md:h-72 object-cover"
-                            src={episode.expand.anime.imageurl}
-                            alt={episode.expand.anime.title}
-                        />
-                    </figure>
-                    <div class="card-body">
-                        <h2 class="card-title">
-                            <!-- if it's of today show new -->
-                            {#if episode.upload.slice(0, 10) == new Date()
-                                    .toISOString()
-                                    .slice(0, 10)}
-                                <div class="badge badge-primary">NEW</div>
-                            {/if}
-                            <!-- DUB -->
-                            {#if episode.expand.anime.dub}
-                                <div class="badge badge-success">DUB</div>
-                            {/if}
-                            <!-- ONA -->
-                            {#if episode.expand.anime.type == "ONA"}
-                                <div class="badge badge-secondary">ONA</div>
-                            {/if}
-                        </h2>
-                        <p
-                            class="break-words truncate md:overflow-auto md:whitespace-normal overflow-auto"
-                        >
-                            {episode.expand.anime.title
-                                ? decodeHTMLEntities(episode.expand.anime.title)
-                                : decodeHTMLEntities(
-                                      episode.expand.anime.title_eng
-                                  )}
-                        </p>
-                    </div>
+                    <img
+                        class="rounded-xl w-full h-full object-cover"
+                        src={episode.expand.anime.imageurl}
+                        alt={episode.expand.anime.title}
+                    />
                 </a>
             </div>
         {/each}
@@ -181,3 +167,24 @@
         <span class="loading loading-spinner loading-lg" />
     {/if}
 </div>
+
+<style>
+    .gradient-border {
+        background: linear-gradient(transparent, transparent) padding-box,
+            linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
+        animation: 8s rotate linear infinite;
+        border: 3px solid #0000;
+    }
+
+    @keyframes rotate {
+        to {
+            --angle: 360deg;
+        }
+    }
+
+    @property --angle {
+        syntax: "<angle>";
+        initial-value: 0deg;
+        inherits: false;
+    }
+</style>

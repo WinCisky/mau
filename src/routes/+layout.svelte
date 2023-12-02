@@ -74,7 +74,7 @@
                     class="btn btn-ghost btn-circle"
                     on:click={() => {
                         // @ts-ignore
-                        my_modal_search.showModal();
+                        document.getElementById("my_modal_search").showModal();
                         searchText = "";
                         searchResults = [];
                     }}
