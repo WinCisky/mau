@@ -125,14 +125,6 @@
                 </div>
             </a>
         </li>
-        <li class="tab h-auto p-0">
-            <a href="{base}/followed">
-                <svg class="w-5 h-5">
-                    <use href="{tea}#tea-img" />
-                </svg>
-                <div class="hidden sm:block">Followed</div>
-            </a>
-        </li>
     </ul>
 </div>
 

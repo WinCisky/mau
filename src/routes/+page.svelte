@@ -78,41 +78,7 @@
 <!-- needed for static compilation -->
 <a href="{base}/player/ignore/me" class="hidden">&nbsp;</a>
 
-<div class="flex justify-center align-middle mb-10">
-    <ul
-        class="menu bg-base-200 menu-horizontal rounded-box tabs tabs-boxed gap-5 items-center"
-    >
-        <li class="tab h-auto p-0">
-            <a href="{base}/seasonal">
-                <svg class="w-5 h-5">
-                    <use href="{currentSeason}#season-img" />
-                </svg>
-                <div class="hidden sm:block">Seasonal</div>
-            </a>
-        </li>
-        <li class="tab tab-active h-auto p-0">
-            <a href="{base}/">
-                <svg class="w-5 h-5">
-                    <use href="{home}#home-img" />
-                </svg>
-                <div class="hidden sm:block">
-                    Latest
-                    <!-- <span class="badge badge-sm">99+</span> -->
-                </div>
-            </a>
-        </li>
-        <li class="tab h-auto p-0">
-            <a href="{base}/followed">
-                <svg class="w-5 h-5">
-                    <use href="{tea}#tea-img" />
-                </svg>
-                <div class="hidden sm:block">Followed</div>
-            </a>
-        </li>
-    </ul>
-</div>
-
-<div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10">
+<div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10 mt-0 md:mt-4">
     {#if episodes && episodes.length > 0}
         {#each episodes as episode}
             <div class="indicator">

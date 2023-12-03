@@ -2,14 +2,18 @@
     import { base } from "$app/paths";
     import { onMount, onDestroy } from "svelte";
     import { page } from "$app/stores";
-    import { decodeHTMLEntities } from "$lib";
+    import { decodeHTMLEntities, getSeasonIndex } from "$lib";
     import { saveUserData } from "$lib/settings_helper";
     import PocketBase from "pocketbase";
     import type { PageData } from "./$types";
     export let data: PageData;
 
+    import hearth from "$lib/assets/icons/hearth.svg";
+
     const pb = new PocketBase("https://dev.opentrust.it/");
 
+    const year = new Date().getFullYear();
+    const seasonIndex = getSeasonIndex();
     const WATCH_TRESHOLD = 0.75;
     const { anime, episode } = $page.params;
     const formatter = new Intl.NumberFormat("en", {
@@ -29,9 +33,13 @@
     let fallbackVideo = "";
     let useMirror = false;
 
+    let isFavorite = false;
+
     async function getVideoUrl(id: number) {
         // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
-        const result = await fetch(`https://mau-backend.deno.dev/api/mirror/${id}`);
+        const result = await fetch(
+            `https://mau-backend.deno.dev/api/mirror/${id}`
+        );
         const data = await result.json();
         fallbackVideo = data;
     }
@@ -75,7 +83,18 @@
             getVideoUrl(videoId);
         }
 
-        console.log(ep?.anime_id );
+        // get if anime is followed
+        pb.collection("mau_follows")
+            .getList(1, 1, {
+                filter: `mal_id = '${ep?.expand.anime.mal_id}' && user_id = '${pb.authStore.model?.id}'`,
+            })
+            .then((result) => {
+                if (result.items.length > 0) {
+                    isFavorite = true;
+                }
+            });
+
+        // console.log(ep?.expand.anime.mal_id);
     });
 
     onDestroy(() => {
@@ -116,6 +135,34 @@
                 }
             }
         }
+    }
+
+    function followAnime(anime: any) {
+        if (isFavorite) {
+            isFavorite = false;
+            // get from db
+            pb.collection("mau_follows")
+                .getList(1, 1, {
+                    filter: `mal_id = '${anime.mal_id}' && user_id = '${pb.authStore.model?.id}'`,
+                })
+                .then((result) => {
+                    if (result.items.length > 0) {
+                        pb.collection("mau_follows").delete(result.items[0].id);
+                    }
+                });
+            return;
+        } else {
+            isFavorite = true;
+            // save to db
+            const toCreate = {
+                mal_id: anime.mal_id,
+                user_id: pb.authStore.model?.id,
+                year: year,
+                season: seasonIndex,
+            };
+            pb.collection("mau_follows").create(toCreate);
+        }
+
     }
 </script>
 
@@ -188,13 +235,26 @@
     </div>
 </div>
 
-<div class="flex justify-center items-center flex-col lg:flex-row gap-5 mb-6">
+<div class="flex justify-center items-center flex-col lg:flex-row gap-24 mb-6">
     <div class="indicator w-3/4 md:w-fit mt-6">
         <img
-            class="w-full max-w-xs h-full object-contain"
+            class="w-full md:max-w-xs h-full object-contain rounded-xl {isFavorite
+                ? 'gradient-border'
+                : ''}"
             src={ep?.expand.anime.imageurl}
             alt={decodeHTMLEntities(ep?.expand.anime.title_eng)}
         />
+        <span class="indicator-item indicator-end">
+            <button class="btn btn-circle" on:click={() => followAnime(ep?.expand.anime)}>
+                <svg
+                    class="w-6 h-6 {isFavorite
+                        ? 'fill-red-600'
+                        : 'stroke-base-content fill-none'}"
+                >
+                    <use href="{hearth}#hearth" />
+                </svg>
+            </button>
+        </span>
         <span class="indicator-item indicator-start badge badge-neutral">
             {ep?.expand.anime.day}
         </span>
@@ -286,3 +346,29 @@
         </p>
     </div>
 </div>
+
+<style>
+    .gradient-border {
+        background: linear-gradient(transparent, transparent) padding-box,
+            linear-gradient(
+                    var(--angle),
+                    theme("colors.primary"),
+                    theme("colors.secondary")
+                )
+                border-box;
+        animation: 8s rotate linear infinite;
+        border: 3px solid #0000;
+    }
+
+    @keyframes rotate {
+        to {
+            --angle: 360deg;
+        }
+    }
+
+    @property --angle {
+        syntax: "<angle>";
+        initial-value: 0deg;
+        inherits: false;
+    }
+</style>
