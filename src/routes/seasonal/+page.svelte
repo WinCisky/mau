@@ -16,6 +16,9 @@
     const currentSeason = getCurrentSeason(winter, spring, summer, fall);
     const seasonIndex = getSeasonIndex();
     const year = new Date().getFullYear();
+    const nextSeason = seasonIndex === 3 ? 0 : seasonIndex + 1;
+    const nextYear = nextSeason === 0 ? year + 1 : year;
+    console.log(nextSeason, nextYear);
 
     $: loggedIn = pb.authStore.isValid;
 
@@ -43,7 +46,7 @@
         const followedAnimeResult = await pb
             .collection("mau_follows")
             .getFullList({
-                filter: `year = ${year} && season = ${seasonIndex} && user_id = '${pb.authStore.model?.id}'`,
+                filter: `year = ${nextYear} && season = ${nextSeason} && user_id = '${pb.authStore.model?.id}'`,
             });
         followedAnime = followedAnimeResult;
     });

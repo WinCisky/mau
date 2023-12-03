@@ -236,11 +236,11 @@
 </div>
 
 <div class="flex justify-center items-center flex-col lg:flex-row gap-24 mb-6">
-    <div class="indicator w-3/4 md:w-fit mt-6">
+    <div class="indicator w-3/4 md:w-fit mt-6 rounded-xl {isFavorite
+        ? 'gradient-border'
+        : ''}">
         <img
-            class="w-full md:max-w-xs h-full object-contain rounded-xl {isFavorite
-                ? 'gradient-border'
-                : ''}"
+            class="w-full md:max-w-xs h-full object-contain rounded-xl"
             src={ep?.expand.anime.imageurl}
             alt={decodeHTMLEntities(ep?.expand.anime.title_eng)}
         />
@@ -360,6 +360,16 @@
                 border-box;
         animation: 8s rotate linear infinite;
         border: 3px solid #0000;
+    }
+
+    .gradient-border::after{
+        content: '';
+        filter: blur(3.5rem);
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(transparent, transparent) padding-box,
+            linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
     }
 
     @keyframes rotate {
