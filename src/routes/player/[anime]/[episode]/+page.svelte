@@ -244,6 +244,7 @@
             src={ep?.expand.anime.imageurl}
             alt={decodeHTMLEntities(ep?.expand.anime.title_eng)}
         />
+        {#if pb.authStore.isValid }
         <span class="indicator-item indicator-end">
             <button class="btn btn-circle" on:click={() => followAnime(ep?.expand.anime)}>
                 <svg
@@ -255,6 +256,7 @@
                 </svg>
             </button>
         </span>
+        {/if}
         <span class="indicator-item indicator-start badge badge-neutral">
             {ep?.expand.anime.day}
         </span>

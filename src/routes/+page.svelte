@@ -7,15 +7,6 @@
     import { getUserWatchedVideos } from "$lib/settings_helper";
     import type { Episode } from "$lib/db_helper";
 
-    import summer from "$lib/assets/icons/summer.svg";
-    import winter from "$lib/assets/icons/winter.svg";
-    import fall from "$lib/assets/icons/fall.svg";
-    import spring from "$lib/assets/icons/spring.svg";
-    import tea from "$lib/assets/icons/tea.svg";
-    import home from "$lib/assets/icons/home.svg";
-
-    const currentSeason = getCurrentSeason(winter, spring, summer, fall);
-
     const pb = new PocketBase("https://dev.opentrust.it/");
     const year = new Date().getFullYear();
     const seasonIndex = getSeasonIndex();
@@ -140,6 +131,16 @@
             linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
         animation: 8s rotate linear infinite;
         border: 3px solid #0000;
+    }
+
+    .gradient-border::after{
+        content: '';
+        filter: blur(3.5rem);
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(transparent, transparent) padding-box,
+            linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
     }
 
     @keyframes rotate {
