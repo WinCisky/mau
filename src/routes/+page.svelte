@@ -72,7 +72,7 @@
 <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10 mt-0 md:mt-4">
     {#if episodes && episodes.length > 0}
         {#each episodes as episode}
-            <div class="indicator">
+            <div class="indicator h-52 md:h-80">
                 <span
                     class="indicator-item indicator-start badge badge-neutral"
                 >
@@ -135,7 +135,7 @@
 
     .gradient-border::after{
         content: '';
-        filter: blur(3.5rem);
+        filter: blur(.5rem);
         position: absolute;
         inset: 0;
         z-index: -1;

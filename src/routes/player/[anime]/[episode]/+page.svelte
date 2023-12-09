@@ -38,7 +38,7 @@
     async function getVideoUrl(id: number) {
         // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
         const result = await fetch(
-            `https://mau-backend.deno.dev/api/mirror/${id}`
+            `https://mau-backend.deno.dev/api/mirror/${id}`,
         );
         const data = await result.json();
         fallbackVideo = data;
@@ -51,8 +51,8 @@
         ep && (ep.link.includes("forbiddenlol") || useMirror)
             ? fallbackVideo
             : ep
-            ? ep.link
-            : "";
+              ? ep.link
+              : "";
     // $: video = "";
     $: videoId = ep ? ep.mau_id : -1;
 
@@ -95,7 +95,76 @@
             });
 
         // console.log(ep?.expand.anime.mal_id);
+
+        // load google cast sdk
+        const script = document.createElement("script");
+        script.src =
+            "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
+        script.async = true;
+        document.body.appendChild(script);
+
+        // @ts-ignore
+        window["__onGCastApiAvailable"] = function (isAvailable: any) {
+            if (isAvailable) {
+                initializeCastApi();
+            }
+        };
     });
+
+    function playVideoChromecast() {
+        // @ts-ignore
+        var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+
+        const currentMediaURL = fallbackVideo;
+        const contentType = "video/mp4";
+
+        // @ts-ignore
+        var mediaInfo = new chrome.cast.media.MediaInfo(currentMediaURL, contentType);
+        // @ts-ignore
+        var request = new chrome.cast.media.LoadRequest(mediaInfo);
+        castSession.loadMedia(request).then(
+        function() { console.log('Load succeed'); },
+        function(errorCode: any) { console.log('Error code: ' + errorCode); });
+    }
+
+    function initializeCastApi() {
+        // @ts-ignore
+        const castContext = cast.framework.CastContext.getInstance();
+
+        castContext.setOptions({
+            // @ts-ignore
+            receiverApplicationId:
+                // @ts-ignore
+                chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+            // @ts-ignore
+            autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+        });
+
+
+        // @ts-ignore
+        cast.framework.CastContext.getInstance().addEventListener(
+            // @ts-ignore
+            cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+            (event: any) => {
+                switch (event.sessionState) {
+                    // @ts-ignore
+                    case cast.framework.SessionState.SESSION_STARTED:
+                        console.log("CastSession started");
+                        playVideoChromecast();
+                        break;
+                    // @ts-ignore
+                    case cast.framework.SessionState.SESSION_RESUMED:
+                        console.log("CastSession resumed");
+                        playVideoChromecast();
+                        break;
+                    // @ts-ignore
+                    case cast.framework.SessionState.SESSION_ENDED:
+                        console.log("CastSession disconnected");
+                        break;
+                }
+            },
+        );
+    }
 
     onDestroy(() => {
         clearInterval(watchTimer);
@@ -130,7 +199,7 @@
                     ];
                     localStorage.setItem(
                         "watchedVideos",
-                        JSON.stringify(videos)
+                        JSON.stringify(videos),
                     );
                 }
             }
@@ -162,7 +231,6 @@
             };
             pb.collection("mau_follows").create(toCreate);
         }
-
     }
 </script>
 
@@ -173,6 +241,13 @@
             : decodeHTMLEntities(ep?.expand.anime.title_eng)} - episode {episode}</title
     >
 </svelte:head>
+
+<!-- fab bottom right -->
+<div
+    class="fixed bottom-4 right-4 z-50 w-14 h-14 m-4 p-3 bg-neutral-300 rounded-full"
+>
+    <google-cast-launcher id="castbutton"></google-cast-launcher>
+</div>
 
 <video
     controls
@@ -185,6 +260,7 @@
         if (typeof localStorage !== "undefined")
             localStorage.setItem("volume", volume.toString());
     }}
+    id="main-video-player"
     class="mx-auto h-auto max-h-[70vh]
         border-transparent focus:outline-none"
 >
@@ -192,20 +268,14 @@
 </video>
 
 <div
-    class="flex flex-col lg:flex-row justify-between items-center align-middle gap-5 mt-6"
+    class="flex flex-col flex-row justify-between items-center align-middle gap-5 mt-6"
 >
-    <h2 class="text-2xl font-bold">
-        {ep?.expand.anime.title
-            ? decodeHTMLEntities(ep.expand.anime.title)
-            : decodeHTMLEntities(ep?.expand.anime.title_eng)}
-    </h2>
-
-    <div class="join flex flex-wrap">
+    <div class="join flex flex-wrap gap-y-2">
         {#if ep?.expand.anime.episodes_count}
             {#each Array(ep?.expand.anime.episodes_count) as _, i}
                 {#if sortedEpisodes.find((e) => e.number == i + 1)}
                     <a
-                        class="join-item btn {i + 1 === ep.number
+                        class="join-item btn w-12 {i + 1 === ep.number
                             ? 'btn-primary'
                             : ''}"
                         href={`${base}/player/${anime}/${i + 1}`}
@@ -214,7 +284,7 @@
                         {i + 1}
                     </a>
                 {:else}
-                    <button class="join-item btn btn-disabled">
+                    <button class="join-item w-12 btn btn-disabled">
                         {i + 1}
                     </button>
                 {/if}
@@ -222,7 +292,7 @@
         {:else}
             {#each sortedEpisodes as episode, i}
                 <a
-                    class="join-item btn {episode.number === ep?.number
+                    class="join-item btn w-12 {episode.number === ep?.number
                         ? 'btn-primary'
                         : ''}"
                     href={`${base}/player/${anime}/${i + 1}`}
@@ -236,26 +306,31 @@
 </div>
 
 <div class="flex justify-center items-center flex-col lg:flex-row gap-24 mb-6">
-    <div class="indicator w-3/4 md:w-fit mt-6 rounded-xl {isFavorite
-        ? 'gradient-border'
-        : ''}">
+    <div
+        class="indicator w-3/4 md:w-fit mt-6 rounded-xl {isFavorite
+            ? 'gradient-border'
+            : ''}"
+    >
         <img
             class="w-full md:max-w-xs h-full object-contain rounded-xl"
             src={ep?.expand.anime.imageurl}
             alt={decodeHTMLEntities(ep?.expand.anime.title_eng)}
         />
-        {#if pb.authStore.isValid }
-        <span class="indicator-item indicator-end">
-            <button class="btn btn-circle" on:click={() => followAnime(ep?.expand.anime)}>
-                <svg
-                    class="w-6 h-6 {isFavorite
-                        ? 'fill-red-600'
-                        : 'stroke-base-content fill-none'}"
+        {#if pb.authStore.isValid}
+            <span class="indicator-item indicator-end">
+                <button
+                    class="btn btn-circle"
+                    on:click={() => followAnime(ep?.expand.anime)}
                 >
-                    <use href="{hearth}#hearth" />
-                </svg>
-            </button>
-        </span>
+                    <svg
+                        class="w-6 h-6 {isFavorite
+                            ? 'fill-red-600'
+                            : 'stroke-base-content fill-none'}"
+                    >
+                        <use href="{hearth}#hearth" />
+                    </svg>
+                </button>
+            </span>
         {/if}
         <span class="indicator-item indicator-start badge badge-neutral">
             {ep?.expand.anime.day}
@@ -267,6 +342,11 @@
     </div>
 
     <div class="flex-1">
+        <h2 class="text-2xl font-bold">
+            {ep?.expand.anime.title
+                ? decodeHTMLEntities(ep.expand.anime.title)
+                : decodeHTMLEntities(ep?.expand.anime.title_eng)}
+        </h2>
         <p class="mt-4">
             Studio:
             <span class="font-bold mt-4">
@@ -351,7 +431,8 @@
 
 <style>
     .gradient-border {
-        background: linear-gradient(transparent, transparent) padding-box,
+        background:
+            linear-gradient(transparent, transparent) padding-box,
             linear-gradient(
                     var(--angle),
                     theme("colors.primary"),
@@ -362,14 +443,20 @@
         border: 3px solid #0000;
     }
 
-    .gradient-border::after{
-        content: '';
-        filter: blur(3.5rem);
+    .gradient-border::after {
+        content: "";
+        filter: blur(0.5rem);
         position: absolute;
         inset: 0;
         z-index: -1;
-        background: linear-gradient(transparent, transparent) padding-box,
-            linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
+        background:
+            linear-gradient(transparent, transparent) padding-box,
+            linear-gradient(
+                    var(--angle),
+                    theme("colors.primary"),
+                    theme("colors.secondary")
+                )
+                border-box;
     }
 
     @keyframes rotate {
