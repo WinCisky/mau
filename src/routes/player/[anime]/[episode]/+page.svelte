@@ -113,18 +113,27 @@
 
     function playVideoChromecast() {
         // @ts-ignore
-        var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+        var castSession =
+            cast.framework.CastContext.getInstance().getCurrentSession();
 
         const currentMediaURL = fallbackVideo;
         const contentType = "video/mp4";
 
         // @ts-ignore
-        var mediaInfo = new chrome.cast.media.MediaInfo(currentMediaURL, contentType);
+        var mediaInfo = new chrome.cast.media.MediaInfo(
+            currentMediaURL,
+            contentType,
+        );
         // @ts-ignore
         var request = new chrome.cast.media.LoadRequest(mediaInfo);
         castSession.loadMedia(request).then(
-        function() { console.log('Load succeed'); },
-        function(errorCode: any) { console.log('Error code: ' + errorCode); });
+            function () {
+                console.log("Load succeed");
+            },
+            function (errorCode: any) {
+                console.log("Error code: " + errorCode);
+            },
+        );
     }
 
     function initializeCastApi() {
@@ -139,7 +148,6 @@
             // @ts-ignore
             autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
         });
-
 
         // @ts-ignore
         cast.framework.CastContext.getInstance().addEventListener(
@@ -242,12 +250,10 @@
     >
 </svelte:head>
 
-<!-- fab bottom right -->
-<div
+<google-cast-launcher
+    id="castbutton"
     class="fixed bottom-4 right-4 z-50 w-14 h-14 m-4 p-3 bg-neutral-300 rounded-full"
->
-    <google-cast-launcher id="castbutton"></google-cast-launcher>
-</div>
+></google-cast-launcher>
 
 <video
     controls
