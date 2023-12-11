@@ -83,6 +83,18 @@
                         >
                     {/if}
                 </span>
+                {#if episode.expand.anime.type === "ONA"}
+                <span
+                    class="indicator-item indicator-top indicator-center badge badge-secondary">
+                    ONA
+                </span>
+                {/if}
+                {#if episode.expand.anime.dub}
+                <span
+                    class="indicator-item indicator-bottom indicator-center badge badge-accent">
+                    DUB
+                </span>
+                {/if}
                 {#if episode.expand.anime.score}
                     <span
                         class="indicator-item hidden md:inline indicator-bottom badge badge-info"
