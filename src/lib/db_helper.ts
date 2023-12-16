@@ -97,6 +97,77 @@ export async function getLatestFollowedEpisodes(pb: PocketBase, page: number = 1
     return anime;
 }
 
+export async function getUserSettings(pb: PocketBase) {
+    if (pb.authStore.model == null) {
+        return null;
+    }
+
+    const user_id = pb.authStore.model?.id;
+    const user_settings = await pb.collection('mau_users').getList(1, 1, {
+        filter: `user='${user_id}'`,
+    });
+
+    if (user_settings.items.length == 0) {
+        return null;
+    }
+
+    return user_settings.items[0];
+}
+
+async function createUserSettings(pb: PocketBase, settings: UserSettings) {
+    if (pb.authStore.model == null) {
+        return null;
+    }
+
+    const user_id = pb.authStore.model?.id;
+    const user_settings = await pb.collection('mau_users').getList(1, 1, {
+        filter: `user='${user_id}'`,
+    });
+
+    if (user_settings.items.length == 0) {
+        await pb.collection('mau_users').create(settings);
+    }
+}
+
+export async function setUserTheme(pb: PocketBase, theme: string) {
+    const user_id = pb.authStore.model?.id;
+    const user_settings = await getUserSettings(pb);
+    if (user_id == null || user_settings == null) {
+        return;
+    }
+
+    if (!user_settings) {
+        const default_settings = new UserSettingsDefaults();
+        default_settings.user = user_id;
+        default_settings.theme = theme;
+        await createUserSettings(pb, default_settings);
+    } else {
+        await pb.collection('mau_users').update(user_settings.id, {
+            theme: theme,
+        });
+    }
+
+    // const user_settings = await pb.collection('mau_users').update('');
+}
+
+interface UserSettings {
+    user: string;
+    ona: boolean;
+    dub: boolean;
+    mirror: boolean;
+    volume: number;
+    theme: string;
+}
+
+class UserSettingsDefaults implements UserSettings {
+    user = '';
+    ona = true;
+    dub = true;
+    mirror = false;
+    volume = 1;
+    theme = 'default';
+}
+
 export interface Episode {
     anime: string
     anime_id: number

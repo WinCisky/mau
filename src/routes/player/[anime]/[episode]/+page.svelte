@@ -28,7 +28,7 @@
 
     // rough estimate of how many seconds the user has watched
     let secondsWatched = 0;
-    let watchTimer: number;
+    let watchTimer: NodeJS.Timeout;
 
     let fallbackVideo = "";
     let useMirror = false;
@@ -114,6 +114,7 @@
     function playVideoChromecast() {
         // @ts-ignore
         var castSession =
+            // @ts-ignore
             cast.framework.CastContext.getInstance().getCurrentSession();
 
         const currentMediaURL = fallbackVideo;

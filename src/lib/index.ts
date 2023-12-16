@@ -27,3 +27,7 @@ export function getSeasonIndex() {
         if (month >= 9 && month < 12) return 3;
     return 0;
 }
+
+export function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

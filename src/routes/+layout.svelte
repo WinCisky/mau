@@ -3,11 +3,13 @@
     import { base } from "$app/paths";
     import { onMount } from "svelte";
     import type { Anime } from "$lib/db_helper";
-    import { searchAnime } from "$lib/db_helper";
+    import { getUserSettings, searchAnime } from "$lib/db_helper";
     import { saveUserData, toggleUserPreference } from "$lib/settings_helper";
     import "../app.css";
+	import { selectedTheme } from "../stores";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
+    const username = pb.authStore.model?.username ?? "anon";
 
     let searchText = "";
     let searchResults: Anime[] = [];
@@ -29,10 +31,16 @@
 
     onMount(async () => {
         settings = JSON.parse(
-            localStorage.getItem("user_settings") || "{}"
+            localStorage.getItem("user_settings") || "{}",
         ) as Record<string, boolean>;
         await saveUserData(pb);
         // if (newData) window.location.href = `${base}/`;
+
+        getUserSettings(pb).then((res) => {
+            if (res && res.theme.length > 0) {
+                $selectedTheme = res.theme;
+            }
+        });
     });
 
     $: dub = settings.dub ?? true;
@@ -40,36 +48,18 @@
     $: mirror = settings.mirror ?? false;
 </script>
 
-<div class="drawer">
+<div class="drawer drawer-end">
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content">
+    <div class="drawer-content circle-background">
         <!-- Page content here -->
+        <input type="checkbox" bind:value={$selectedTheme} checked class="hidden checkbox theme-controller"/>
         <div class="navbar bg-base-300">
             <div class="flex-1">
-                <div class="flex-none">
-                    <label
-                        for="my-drawer"
-                        class="btn btn-square btn-ghost drawer-button"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            class="inline-block w-5 h-5 stroke-current"
-                            ><path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            /></svg
-                        >
-                    </label>
-                </div>
                 <a class="btn btn-ghost normal-case text-xl" href="{base}/"
                     >Mau</a
                 >
             </div>
-            <div class="flex-none">
+            <div class="flex-none mr-2">
                 <button
                     class="btn btn-ghost btn-circle"
                     on:click={() => {
@@ -94,9 +84,30 @@
                     >
                 </button>
             </div>
+            <div class="flex-none mr-2">
+                <label
+                    for="my-drawer"
+                    class="btn btn-ghost btn-circle"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="currentColor" d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+                </label>
+            </div>
+            <div class="dropdown dropdown-end">
+                <a
+                    href="/settings"
+                    class="btn btn-ghost btn-circle avatar"
+                >
+                    <div class="w-10 rounded-full">
+                        <img
+                            alt="Tailwind CSS Navbar component"
+                            src="https://api.dicebear.com/7.x/notionists/svg?seed={username}"
+                        />
+                    </div>
+                </a>
+            </div>
         </div>
 
-        <div class="container mx-auto mt-6 p-4 md:p-2">
+        <div class="container mx-auto mt-6 p-4 md:p-2 min-h-[calc(100vh-66px)]">
             <slot />
         </div>
     </div>
@@ -104,98 +115,13 @@
         <label for="my-drawer" class="drawer-overlay" />
         <ul class="menu p-4 w-80 h-full bg-base-200 text-base-content">
             <!-- Sidebar content here -->
-            <h2 class="text-2xl font-bold mb-6">Filters</h2>
-            <li class="form-control">
-                <label
-                    class="cursor-pointer label flex justify-start gap-8 p-4"
-                >
-                    <input
-                        type="checkbox"
-                        class="toggle toggle-success"
-                        checked={dub}
-                        on:change={() => togglePreference("dub")}
-                    />
-                    <span class="label-text">DUB</span>
-                </label>
-            </li>
-
-            <li class="form-control">
-                <label
-                    class="cursor-pointer label flex justify-start gap-8 p-4"
-                >
-                    <input
-                        type="checkbox"
-                        class="toggle toggle-secondary"
-                        checked={ona}
-                        on:change={() => togglePreference("ona")}
-                    />
-                    <span class="label-text">ONA</span>
-                </label>
-            </li>
-
-            <h2 class="text-2xl font-bold my-6">Settings</h2>
-
-            <li class="form-control">
-                <label
-                    class="cursor-pointer label flex justify-start gap-8 p-4"
-                >
-                    <input
-                        type="checkbox"
-                        class="toggle"
-                        checked={mirror}
-                        on:change={() => togglePreference("mirror", false)}
-                    />
-                    <span class="label-text">Mirror</span>
-                </label>
-            </li>
-
-            <h2 class="text-2xl font-bold my-6 mt-auto">
-                {pb.authStore.isValid && pb.authStore.model?.username
-                    ? pb.authStore.model?.username.length > 19
-                        ? pb.authStore.model?.username.substring(0, 19) + "..."
-                        : pb.authStore.model?.username
-                    : "Account"}
-            </h2>
-            <button
-                class="btn btn-outline"
-                on:click={async () => {
-                    if (pb.authStore.isValid) {
-                        pb.authStore.clear();
-                        localStorage.setItem("synched", "false");
-                        localStorage.setItem("synchedDate", "1970-01-01T00:00:00.000Z");
-                    } else {
-                        await pb
-                            .collection("users")
-                            .authWithOAuth2({ provider: "github" });
-                        if (pb.authStore.isValid) {
-                            await saveUserData(pb);
-                            window.location.href = `${base}/`;
-                        }
-                    }
-                    // console.log(pb.authStore);
-                    window.location.href = `${base}/`;
-                }}
-            >
-                {pb.authStore.isValid ? "Logout" : "Login"}
-                {#if !pb.authStore.isValid}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6 fill-current"
-                        viewBox="0 0 100 100"
-                        stroke="currentColor"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"
-                        /></svg
-                    >
-                {/if}
-            </button>
+            <h2 class="text-lg font-semibold mb-6">History</h2>
+            
         </ul>
     </div>
 
     <dialog id="my_modal_search" class="modal modal-top md:modal-middle">
-        <form method="dialog" class="modal-box w-full md:w-fit max-w-none">
+        <form method="dialog" class="modal-box w-full md:w-fit !max-w-none">
             <div class="flex flex-col justify-center items-center">
                 <div>
                     <input
@@ -239,3 +165,64 @@
         </form>
     </dialog>
 </div>
+
+<style>
+    /* clip path animation float */
+    @keyframes float-right {
+        0% {
+            clip-path: circle(30rem at 5rem 5rem);
+        }
+        50% {
+            clip-path: circle(30rem at 5rem 10rem);
+        }
+        100% {
+            clip-path: circle(30rem at 5rem 5rem);
+        }
+    }
+
+    @keyframes float-left {
+        0% {
+            clip-path: circle(30rem at right 70rem);
+        }
+        50% {
+            clip-path: circle(30rem at right 65rem);
+        }
+        100% {
+            clip-path: circle(30rem at right 70rem);
+        }
+    }
+
+    @media (min-width: 768px) {
+        .circle-background::after {
+            z-index: -2;
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                theme("colors.primary"),
+                theme("colors.secondary")
+            );
+            clip-path: circle(30rem at 5rem 5rem);
+            animation: float-right 60s ease-in-out infinite;
+        }
+
+        .circle-background::before {
+            z-index: -2;
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                theme("colors.secondary"),
+                theme("colors.primary")
+            );
+            clip-path: circle(30rem at right 70rem);
+            animation: float-left 60s ease-in-out infinite;
+        }
+    }
+</style>

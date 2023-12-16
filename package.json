@@ -14,7 +14,7 @@
 		"@sveltejs/adapter-static": "^2.0.3",
 		"@sveltejs/kit": "^1.20.4",
 		"autoprefixer": "^10.4.14",
-		"daisyui": "^3.5.0",
+		"daisyui": "^4.4.20",
 		"pocketbase": "^0.16.0",
 		"postcss": "^8.4.27",
 		"svelte": "^4.0.5",
