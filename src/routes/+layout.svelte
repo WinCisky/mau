@@ -94,7 +94,7 @@
             </div>
             <div class="dropdown dropdown-end">
                 <a
-                    href="/settings"
+                    href="{base}/settings"
                     class="btn btn-ghost btn-circle avatar"
                 >
                     <div class="w-10 rounded-full">
