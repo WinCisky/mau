@@ -312,9 +312,9 @@
     </div>
 </div>
 
-<div class="flex justify-center items-center flex-col lg:flex-row gap-24 mb-6">
+<div class="flex justify-center items-center flex-col lg:flex-row gap-24 my-6">
     <div
-        class="indicator w-3/4 md:w-fit mt-6 rounded-xl {isFavorite
+        class="indicator w-3/4 md:w-fit rounded-xl {isFavorite
             ? 'gradient-border'
             : ''}"
     >
@@ -348,7 +348,7 @@
         </span>
     </div>
 
-    <div class="flex-1">
+    <div class="flex-1 p-4 rounded-xl bg-base-100">
         <h2 class="text-2xl font-bold">
             {ep?.expand.anime.title
                 ? decodeHTMLEntities(ep.expand.anime.title)
