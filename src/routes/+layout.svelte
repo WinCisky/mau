@@ -4,9 +4,9 @@
     import { onMount } from "svelte";
     import type { Anime } from "$lib/db_helper";
     import { getUserSettings, searchAnime } from "$lib/db_helper";
-    import { saveUserData, toggleUserPreference } from "$lib/settings_helper";
+    import { saveUserData, getUserWatchedVideos } from "$lib/settings_helper";
     import "../app.css";
-	import { selectedTheme } from "../stores";
+	import { selectedTheme, watched, history } from "../stores";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     const username = pb.authStore.model?.username ?? "anon";
@@ -20,11 +20,6 @@
         });
     } else {
         searchResults = [];
-    }
-
-    function togglePreference(name: string, defaultValue: boolean = true) {
-        toggleUserPreference(pb, name, defaultValue);
-        window.location.href = `${base}/`;
     }
 
     let settings = {} as Record<string, boolean>;
@@ -41,6 +36,16 @@
                 $selectedTheme = res.theme;
             }
         });
+
+        if (pb.authStore.isValid) {
+            $history = await getUserWatchedVideos(pb);
+
+            const episodesWatched = [];
+            for (const episodeWatched of $history) {
+                episodesWatched.push(episodeWatched.episode);
+            }
+            $watched = episodesWatched;
+        }
     });
 
     $: dub = settings.dub ?? true;
@@ -113,11 +118,19 @@
     </div>
     <div class="drawer-side z-10">
         <label for="my-drawer" class="drawer-overlay" />
-        <ul class="menu p-4 w-80 h-full bg-base-200 text-base-content">
+        <div class="menu p-4 w-80 h-full bg-base-200 text-base-content">
             <!-- Sidebar content here -->
             <h2 class="text-lg font-semibold mb-6">History</h2>
-            
-        </ul>
+            {#each $history as item}
+                    <a
+                        class="btn btn-ghost w-full flex justify-center items-center"
+                        href={`${base}/player/${item.expand.episode.expand.anime.slug}/${item.expand.episode.number}`}
+                    >
+                        <span class="badge badge-lg">{item.expand.episode.number}</span>
+                        {item.expand.episode.expand.anime.title_eng}
+                    </a>
+            {/each}
+        </div>
     </div>
 
     <dialog id="my_modal_search" class="modal modal-top md:modal-middle">

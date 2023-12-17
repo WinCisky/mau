@@ -42,19 +42,16 @@ export async function updateUserSettings(pb: PocketBase) {
   });
 }
 
-export async function getUserWatchedVideos(pb: PocketBase, episodes: any[]) {
+export async function getUserWatchedVideos(pb: PocketBase) {
   if (!pb.authStore.isValid) return [];
-  // const quotedEpisodes = episodes.map((e) => `'${e}'`) ?? [];
-  const watched = await pb.collection("mau_history").getList(1, 1, {
-    filter: `user = '${pb.authStore.model?.id}'`,
+  const watched = await pb.collection("mau_history").getList(1, 100, {
+    filter: `user = '${pb.authStore.model?.id}' && episode.created > '${new Date(
+      new Date().getTime() - 1000 * 60 * 60 * 24 * 7, // 7 days
+    ).toISOString()}'`,
+    expand: "episode.anime",
   });
 
-  // only return array of ids of watched episodes
-  const episodesWatched = [];
-  for (const episodeWatched of watched.items) {
-    episodesWatched.push(episodeWatched.id);
-  }
-  return episodesWatched;
+  return watched.items;
 }
 
 export async function saveUserData(pb: PocketBase): Promise<boolean> {

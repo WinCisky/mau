@@ -2,7 +2,8 @@
     import { base } from "$app/paths";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
-    import { decodeHTMLEntities, getCurrentSeason, getSeasonIndex } from "$lib";
+    import { getSeasonIndex } from "$lib";
+    import { watched } from "../stores";
     import { getLatestEpisodes } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
     import type { Episode } from "$lib/db_helper";
@@ -15,17 +16,11 @@
     let page = 1;
     let watchedEspisodes = [] as string[];
 
-    $: watched = watchedEspisodes;
-
     onMount(async () => {
         getLatestEpisodes(pb).then(async (resultList) => {
             episodes = resultList.items.map((item) => {
                 return item as unknown as Episode;
             });
-
-            if (pb.authStore.isValid) {
-                watchedEspisodes = await getUserWatchedVideos(pb, episodes.map((e) => e.id));
-            }
         });
 
         const followedAnimeResult = await pb
@@ -94,7 +89,7 @@
                 {/if}
                 <a
                     class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl
-                        {watched && watched.includes(episode.id)
+                        {$watched && $watched.includes(episode.id)
                         ? 'opacity-60'
                         : ''}
                         {followedAnime.some(
@@ -113,9 +108,11 @@
                 </a>
             </div>
         {/each}
-        <button class="btn btn-neutral btn-block w-fit" on:click={loadMore}>
-            Load more
-        </button>
+        <div class="flex justify-center w-full">
+            <button class="btn btn-neutral w-fit" on:click={loadMore}>
+                Load more
+            </button>
+        </div>
     {:else}
         <span class="loading loading-spinner loading-lg" />
     {/if}
