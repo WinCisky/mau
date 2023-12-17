@@ -13,16 +13,19 @@
     let episodes = [] as Episode[];
     let followedAnime = [] as any[];
     let page = 1;
-    let watchedEspisodes = {} as Record<string, number[]>;
+    let watchedEspisodes = [] as string[];
 
     $: watched = watchedEspisodes;
 
     onMount(async () => {
-        getLatestEpisodes(pb).then((resultList) => {
-            // console.log(JSON.stringify(resultList, null, 2));
+        getLatestEpisodes(pb).then(async (resultList) => {
             episodes = resultList.items.map((item) => {
                 return item as unknown as Episode;
             });
+
+            if (pb.authStore.isValid) {
+                watchedEspisodes = await getUserWatchedVideos(pb, episodes.map((e) => e.id));
+            }
         });
 
         const followedAnimeResult = await pb
@@ -31,24 +34,6 @@
                 filter: `year = ${year} && season = ${seasonIndex} && user_id = '${pb.authStore.model?.id}'`,
             });
         followedAnime = followedAnimeResult;
-
-        // if (typeof localStorage !== "undefined")
-        //     watchedEspisodes = JSON.parse(
-        //         localStorage.getItem("watchedVideos") || "{}"
-        //     );
-        if (pb.authStore.isValid) {
-            // console.time('getUserWatchedVideos');
-            watchedEspisodes = await getUserWatchedVideos(pb);
-            // console.timeEnd('getUserWatchedVideos');
-        } else if (
-            // refresh token
-            typeof pb.authStore.token !== "undefined" &&
-            pb.authStore.token !== null &&
-            pb.authStore.token !== ""
-        ) {
-            pb.collection("users").authWithOAuth2({ provider: "github" });
-            // pb.collection("users").authRefresh();
-        }
     });
 
     function loadMore() {
@@ -109,8 +94,7 @@
                 {/if}
                 <a
                     class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl
-                        {watched &&
-                    watched[episode.anime_id]?.includes(episode.number)
+                        {watched && watched.includes(episode.id)
                         ? 'opacity-60'
                         : ''}
                         {followedAnime.some(

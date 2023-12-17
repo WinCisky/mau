@@ -20,6 +20,11 @@
         notation: "compact",
     });
 
+    // @ts-ignore
+    declare var cast: any;
+    // @ts-ignore
+    declare var chrome: any;
+
     let watched = false;
     let time = 0;
     let duration: number;
@@ -109,23 +114,24 @@
                 initializeCastApi();
             }
         };
+
+        // pb.collection("mau_history").create({
+        //             episode: ep?.id,
+        //             user: pb.authStore.model?.id,
+        //         });
     });
 
     function playVideoChromecast() {
-        // @ts-ignore
-        var castSession =
-            // @ts-ignore
+        const castSession =
             cast.framework.CastContext.getInstance().getCurrentSession();
 
         const currentMediaURL = fallbackVideo;
         const contentType = "video/mp4";
 
-        // @ts-ignore
         var mediaInfo = new chrome.cast.media.MediaInfo(
             currentMediaURL,
             contentType,
         );
-        // @ts-ignore
         var request = new chrome.cast.media.LoadRequest(mediaInfo);
         castSession.loadMedia(request).then(
             function () {
@@ -138,35 +144,26 @@
     }
 
     function initializeCastApi() {
-        // @ts-ignore
         const castContext = cast.framework.CastContext.getInstance();
 
         castContext.setOptions({
-            // @ts-ignore
             receiverApplicationId:
-                // @ts-ignore
                 chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-            // @ts-ignore
             autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
         });
 
-        // @ts-ignore
         cast.framework.CastContext.getInstance().addEventListener(
-            // @ts-ignore
             cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
             (event: any) => {
                 switch (event.sessionState) {
-                    // @ts-ignore
                     case cast.framework.SessionState.SESSION_STARTED:
                         console.log("CastSession started");
                         playVideoChromecast();
                         break;
-                    // @ts-ignore
                     case cast.framework.SessionState.SESSION_RESUMED:
                         console.log("CastSession resumed");
                         playVideoChromecast();
                         break;
-                    // @ts-ignore
                     case cast.framework.SessionState.SESSION_ENDED:
                         console.log("CastSession disconnected");
                         break;
@@ -192,25 +189,11 @@
                 typeof localStorage !== "undefined"
             ) {
                 watched = true;
-                // add to localstorage videos watched
-                let watchedVideos = localStorage.getItem("watchedVideos");
-                let videos = {} as Record<string, number[]>;
-                if (watchedVideos) {
-                    videos = JSON.parse(watchedVideos) as Record<
-                        string,
-                        number[]
-                    >;
-                }
-                if (!videos[ep?.anime_id ?? 0]?.includes(ep?.number ?? 0)) {
-                    videos[ep?.anime_id ?? 0] = [
-                        ...((videos[ep?.anime_id ?? 0] || []) as number[]),
-                        ep?.number ?? 0,
-                    ];
-                    localStorage.setItem(
-                        "watchedVideos",
-                        JSON.stringify(videos),
-                    );
-                }
+                // insert watched video in db
+                pb.collection("mau_history").create({
+                    episode: ep?.id,
+                    user: pb.authStore.model?.id,
+                });
             }
         }
     }
@@ -275,7 +258,7 @@
 </video>
 
 <div
-    class="flex flex-col flex-row justify-between items-center align-middle gap-5 mt-6"
+    class="flex flex-col justify-between items-center align-middle gap-5 mt-6"
 >
     <div class="join flex flex-wrap gap-y-2">
         {#if ep?.expand.anime.episodes_count}

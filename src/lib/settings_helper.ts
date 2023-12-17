@@ -42,36 +42,19 @@ export async function updateUserSettings(pb: PocketBase) {
   });
 }
 
-export async function getUserWatchedVideos(pb: PocketBase) {
-  if (!pb.authStore.isValid) return {};
-  await pb.collection("users").authRefresh();
-  if (typeof localStorage === "undefined") return {};
-
-  const watchedVideos = JSON.parse(
-    localStorage.getItem("watchedVideos") ?? "{}",
-  );
-
-  const userId = pb.authStore.model?.id;
-  const userData = await pb.collection("mau_users").getList(1, 1, {
-    filter: `user = '${userId}'`,
+export async function getUserWatchedVideos(pb: PocketBase, episodes: any[]) {
+  if (!pb.authStore.isValid) return [];
+  // const quotedEpisodes = episodes.map((e) => `'${e}'`) ?? [];
+  const watched = await pb.collection("mau_history").getList(1, 1, {
+    filter: `user = '${pb.authStore.model?.id}'`,
   });
 
-  if (userData.items.length > 0) {
-    localStorage.setItem(
-      "user_settings",
-      JSON.stringify({
-        "ona": userData.items[0].ona,
-        "dub": userData.items[0].dub,
-        "mirror": userData.items[0].mirror,
-      }),
-    );
-    const mergedWatchedVideos = mergeWatchedVideos(
-      userData.items[0].watched,
-      watchedVideos,
-    );
-    return mergedWatchedVideos;
+  // only return array of ids of watched episodes
+  const episodesWatched = [];
+  for (const episodeWatched of watched.items) {
+    episodesWatched.push(episodeWatched.id);
   }
-  return watchedVideos;
+  return episodesWatched;
 }
 
 export async function saveUserData(pb: PocketBase): Promise<boolean> {
