@@ -134,8 +134,8 @@
         >
             <!-- Sidebar content here -->
             <h2 class="text-lg font-semibold mb-6">History</h2>
-            <div class="flex flex-col justify-center gap-4 md:gap-8 pb-10">
-                {#each [...$history].reverse().slice(0, 10) as item}
+            <div class="flex flex-col justify-center gap-4 pb-10">
+                {#each $history as item}
                     <a
                         class="card bg-base-300 shadow-xl image-full max-h-24"
                         data-sveltekit-reload
