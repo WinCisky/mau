@@ -14,7 +14,7 @@
 
     const year = new Date().getFullYear();
     const seasonIndex = getSeasonIndex();
-    const WATCH_TRESHOLD = 0.75;
+    const WATCH_TRESHOLD = 0.2;
     const { anime, episode } = $page.params;
     const formatter = new Intl.NumberFormat("en", {
         notation: "compact",

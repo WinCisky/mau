@@ -6,7 +6,7 @@
     import { getUserSettings, searchAnime } from "$lib/db_helper";
     import { saveUserData, getUserWatchedVideos } from "$lib/settings_helper";
     import "../app.css";
-	import { selectedTheme, watched, history } from "../stores";
+    import { selectedTheme, watched, history } from "../stores";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     const username = pb.authStore.model?.username ?? "anon";
@@ -53,11 +53,16 @@
     $: mirror = settings.mirror ?? false;
 </script>
 
-<div class="drawer drawer-end">
+<div class="drawer">
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content circle-background">
         <!-- Page content here -->
-        <input type="checkbox" bind:value={$selectedTheme} checked class="hidden checkbox theme-controller"/>
+        <input
+            type="checkbox"
+            bind:value={$selectedTheme}
+            checked
+            class="hidden checkbox theme-controller"
+        />
         <div class="navbar bg-base-300">
             <div class="flex-1">
                 <a class="btn btn-ghost normal-case text-xl" href="{base}/"
@@ -90,11 +95,17 @@
                 </button>
             </div>
             <div class="flex-none mr-2">
-                <label
-                    for="my-drawer"
-                    class="btn btn-ghost btn-circle"
-                >
-                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="currentColor" d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+                <label for="my-drawer" class="btn btn-ghost btn-circle">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24"
+                        viewBox="0 -960 960 960"
+                        width="24"
+                        ><path
+                            fill="currentColor"
+                            d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"
+                        /></svg
+                    >
                 </label>
             </div>
             <div class="dropdown dropdown-end">
@@ -118,18 +129,41 @@
     </div>
     <div class="drawer-side z-10">
         <label for="my-drawer" class="drawer-overlay" />
-        <div class="menu p-4 w-80 h-full bg-base-200 text-base-content">
+        <div
+            class="menu p-4 w-80 h-full bg-base-200 text-base-content overflow-hidden flex-nowrap"
+        >
             <!-- Sidebar content here -->
             <h2 class="text-lg font-semibold mb-6">History</h2>
-            {#each $history as item}
+            <div class="flex flex-col justify-center gap-4 md:gap-8 pb-10">
+                {#each [...$history].reverse().slice(0, 10) as item}
                     <a
-                        class="btn btn-ghost w-full flex justify-center items-center"
+                        class="card bg-base-300 shadow-xl image-full max-h-24"
+                        data-sveltekit-reload
                         href={`${base}/player/${item.expand.episode.expand.anime.slug}/${item.expand.episode.number}`}
                     >
-                        <span class="badge badge-lg">{item.expand.episode.number}</span>
-                        {item.expand.episode.expand.anime.title_eng}
+                        <figure class="opacity-50">
+                            <img
+                                src={item.expand.episode.expand.anime.imageurl}
+                                class="w-full"
+                                alt={item.expand.episode.expand.anime.title_eng}
+                            />
+                        </figure>
+                        <div class="card-body !p-2">
+                            <p class="text-lg font-bold flex items-end flex-1">
+                                {item.expand.episode.expand.anime.title_eng.length > 25
+                                    ? `${item.expand.episode.expand.anime.title_eng.slice(
+                                          0,
+                                          25,
+                                      )}...`
+                                    : item.expand.episode.expand.anime.title_eng}
+                            </p>
+                            <p class="text-sm font-semibold flex items-start flex-1">
+                                Episode: {item.expand.episode.number}
+                            </p>
+                        </div>
                     </a>
-            {/each}
+                {/each}
+            </div>
         </div>
     </div>
 
