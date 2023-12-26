@@ -4,7 +4,7 @@
     import { onMount } from "svelte";
     import type { Anime } from "$lib/db_helper";
     import { getUserSettings, searchAnime } from "$lib/db_helper";
-    import { saveUserData, getUserWatchedVideos } from "$lib/settings_helper";
+    import { getUserWatchedVideos } from "$lib/settings_helper";
     import "../app.css";
     import { selectedTheme, watched, history } from "../stores";
 
@@ -25,16 +25,12 @@
     let settings = {} as Record<string, boolean>;
 
     onMount(async () => {
-        settings = JSON.parse(
-            localStorage.getItem("user_settings") || "{}",
-        ) as Record<string, boolean>;
-        await saveUserData(pb);
-        // if (newData) window.location.href = `${base}/`;
-
         getUserSettings(pb).then((res) => {
             if (res && res.theme.length > 0) {
                 $selectedTheme = res.theme;
             }
+            settings.dub = res?.dub ?? true;
+            settings.ona = res?.ona ?? true;
         });
 
         if (pb.authStore.isValid) {
@@ -47,10 +43,6 @@
             $watched = episodesWatched;
         }
     });
-
-    $: dub = settings.dub ?? true;
-    $: ona = settings.ona ?? true;
-    $: mirror = settings.mirror ?? false;
 </script>
 
 <div class="drawer">

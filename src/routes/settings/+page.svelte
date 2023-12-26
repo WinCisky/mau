@@ -3,8 +3,14 @@
     import PocketBase from "pocketbase";
     import { base } from "$app/paths";
     import { capitalizeFirstLetter } from "$lib";
-    import { getUserSettings, setUserTheme } from "$lib/db_helper";
+    import {
+        UserSettingsDefaults,
+        getUserSettings,
+        setUserSettings,
+        setUserTheme,
+    } from "$lib/db_helper";
     import { selectedTheme } from "../../stores";
+    // import "@weblogin/trendchart-elements";
 
     interface Provider {
         name: "google" | "github";
@@ -51,10 +57,38 @@
     let chillImg = "/chill.png";
     let isLogged = false;
     let joinedYear: number = new Date().getFullYear();
+    let settingsInitialized = false;
+    let ona = true;
+    let dub = true;
+    let mirror = true;
+    let settings = new UserSettingsDefaults();
 
     // save theme on change
     $: if (selectedTheme) {
         setUserTheme(pb, $selectedTheme);
+    }
+
+    $: {
+        ona;
+        if (settingsInitialized && ona !== settings.ona) {
+            settings.ona = ona;
+            setUserSettings(pb, settings);
+        }
+    }
+    $: {
+        dub;
+        if (settingsInitialized && dub !== settings.dub) {
+            settings.dub = dub;
+            setUserSettings(pb, settings);
+        }
+    }
+
+    $: {
+        mirror;
+        if (settingsInitialized && mirror !== settings.mirror) {
+            settings.mirror = mirror;
+            setUserSettings(pb, settings);
+        }
     }
 
     onMount(() => {
@@ -63,6 +97,20 @@
             let createdDate = new Date(pb.authStore.model!.created);
             joinedYear = createdDate.getFullYear();
         }
+
+        getUserSettings(pb).then((res) => {
+            if (!res) return;
+            settings.dub = res.dub;
+            settings.ona = res.ona;
+            settings.mirror = res.mirror;
+            ona = res.ona;
+            dub = res.dub;
+            mirror = res.mirror;
+            // set settingsInitialized to true after 1 s
+            setTimeout(() => {
+                settingsInitialized = true;
+            }, 1000);
+        });
     });
 
     async function providerLogin(provider: Provider) {
@@ -87,7 +135,7 @@
 </svelte:head>
 
 {#if isLogged}
-    <div class="flex flex-col w-full justify-center items-center">
+    <div class="flex flex-col w-full justify-center items-center gap-6">
         <div
             class="flex flex-col w-full gap-6 max-w-xl justify-center items-center"
         >
@@ -130,7 +178,7 @@
                                 <input
                                     type="checkbox"
                                     class="toggle toggle-accent"
-                                    checked
+                                    bind:checked={dub}
                                 />
                             </div>
                         </div>
@@ -140,16 +188,22 @@
                                 <input
                                     type="checkbox"
                                     class="toggle toggle-secondary"
-                                    checked
+                                    bind:checked={ona}
                                 />
                             </div>
                         </div>
+                        {#if false}
                         <div class="form-control w-52">
                             <div class="flex gap-4 justify-between">
                                 <p>Mirror</p>
-                                <input type="checkbox" class="toggle" checked />
+                                <input
+                                    type="checkbox"
+                                    class="toggle"
+                                    bind:checked={mirror}
+                                />
                             </div>
                         </div>
+                        {/if}
                         <div>
                             <label class="label" for="theme-select">Theme</label
                             >
@@ -211,7 +265,9 @@
             <div class="hero-content text-center text-neutral-content">
                 <div class="max-w-md">
                     <h1 class="mb-5 text-5xl font-bold">Hello there</h1>
-                    <div class="flex gap-4 flex-col md:flex-row justify-center mt-10">
+                    <div
+                        class="flex gap-4 flex-col md:flex-row justify-center mt-10"
+                    >
                         <button
                             class="btn"
                             on:click={() => providerLogin({ name: "google" })}

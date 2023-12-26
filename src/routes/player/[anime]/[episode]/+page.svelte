@@ -3,12 +3,12 @@
     import { onMount, onDestroy } from "svelte";
     import { page } from "$app/stores";
     import { decodeHTMLEntities, getSeasonIndex } from "$lib";
-    import { saveUserData } from "$lib/settings_helper";
     import PocketBase from "pocketbase";
     import type { PageData } from "./$types";
     export let data: PageData;
 
     import hearth from "$lib/assets/icons/hearth.svg";
+    import { getUserSettings } from "$lib/db_helper";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
 
@@ -36,7 +36,7 @@
     let watchTimer: number;
 
     let fallbackVideo = "";
-    let useMirror = false;
+    let useMirror = true;
 
     let isFavorite = false;
 
@@ -72,17 +72,12 @@
             }
         }, 1000);
 
-        if (typeof localStorage !== "undefined") {
-            volume = parseFloat(localStorage.getItem("volume") || "1");
-            const user_settings = localStorage.getItem("user_settings");
-            if (user_settings != null) {
-                const user_settings_json = JSON.parse(user_settings);
-                if ("mirror" in user_settings_json) {
-                    useMirror = user_settings_json.mirror;
-                }
-                saveUserData(pb);
+        // get volume
+        getUserSettings(pb).then((settings) => {
+            if (settings) {
+                volume = settings.volume;
             }
-        }
+        });
 
         if (ep?.link.includes("forbiddenlol") || useMirror) {
             getVideoUrl(videoId);

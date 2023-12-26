@@ -11,21 +11,14 @@ export async function searchAnime(pb: PocketBase, searchText: string) {
 }
 
 export async function getLatestEpisodes(pb: PocketBase, page: number = 1) {
-
-    let ona = true;
-    let dub = true;
     let filter = "public=1";
 
-    if (typeof localStorage != "undefined") {
-        const user_settings = localStorage.getItem("user_settings");
-        if (user_settings != null) {
-            const user_settings_json = JSON.parse(user_settings);
-            if ("ona" in user_settings_json) {
-                ona = user_settings_json.ona;
-            }
-            if ("dub" in user_settings_json) {
-                dub = user_settings_json.dub;
-            }
+    if (pb.authStore.model != null) {
+        const settings = await getUserSettings(pb);
+
+        if (settings != null) {
+            const ona = settings.ona;
+            const dub = settings.dub;
             if (!ona) {
                 filter += " && anime.type!='ONA'";
             }
@@ -114,6 +107,25 @@ export async function getUserSettings(pb: PocketBase) {
     return user_settings.items[0];
 }
 
+export async function setUserSettings(pb: PocketBase, settings: UserSettings) {
+    if (pb.authStore.model == null) {
+        return null;
+    }
+
+    const user_id = pb.authStore.model?.id;
+    // do not change user
+    settings.user = user_id;
+    const user_settings = await pb.collection('mau_users').getList(1, 1, {
+        filter: `user='${user_id}'`,
+    });
+
+    if (user_settings.items.length == 0) {
+        return null;
+    }
+
+    await pb.collection('mau_users').update(user_settings.items[0].id, settings);
+}
+
 async function createUserSettings(pb: PocketBase, settings: UserSettings) {
     if (pb.authStore.model == null) {
         return null;
@@ -159,11 +171,11 @@ interface UserSettings {
     theme: string;
 }
 
-class UserSettingsDefaults implements UserSettings {
+export class UserSettingsDefaults implements UserSettings {
     user = '';
     ona = true;
     dub = true;
-    mirror = false;
+    mirror = true;
     volume = 1;
     theme = 'default';
 }
