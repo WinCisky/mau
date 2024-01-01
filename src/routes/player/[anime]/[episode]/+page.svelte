@@ -231,7 +231,7 @@
 
 <google-cast-launcher
     id="castbutton"
-    class="fixed bottom-4 right-4 z-50 w-14 h-14 m-4 p-3 bg-neutral-300 rounded-full"
+    class="fixed bottom-4 right-4 z-50 w-14 h-14 m-4 p-3 bg-neutral-300 rounded-full cursor-pointer"
 ></google-cast-launcher>
 
 <video
