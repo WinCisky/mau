@@ -23,10 +23,15 @@
             });
         });
 
+
+        const prevYear = seasonIndex === 0 ? year - 1 : year;
+        const prevSeasonIndex = seasonIndex === 0 ? 3 : seasonIndex - 1;
+        
+        const filter = `(year = ${year} && season = ${seasonIndex}) || (year = ${prevYear} && season = ${prevSeasonIndex}) && user_id = '${pb.authStore.model?.id}'`;
         const followedAnimeResult = await pb
             .collection("mau_follows")
             .getFullList({
-                filter: `year = ${year} && season = ${seasonIndex} && user_id = '${pb.authStore.model?.id}'`,
+                filter: filter,
             });
         followedAnime = followedAnimeResult;
     });
