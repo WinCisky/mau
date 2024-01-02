@@ -8,6 +8,9 @@
     export let data: PageData;
 
     import hearth from "$lib/assets/icons/hearth.svg";
+    import play from "$lib/assets/icons/play.svg";
+    import pause from "$lib/assets/icons/pause.svg";
+    import stop from "$lib/assets/icons/stop.svg";
     import { getUserSettings } from "$lib/db_helper";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
@@ -24,6 +27,11 @@
     declare var cast: any;
     // @ts-ignore
     declare var chrome: any;
+    let player: any = null;
+    let playerController: any = null;
+    let castSession: any = null;
+    let castDuration = 0;
+    let castTimePlayer = 0;
 
     let watched = false;
     let time = 0;
@@ -39,6 +47,19 @@
     let useMirror = true;
 
     let isFavorite = false;
+    let isCastConnected = false;
+    let isCastPlaying = false;
+    let videoSegments = [] as number[];
+    let castTime = 0;
+    let castWatchTimer: number;
+
+    $: timeSegments = videoSegments.length > 0 ? videoSegments.map((segment) => {
+        return segment > 3600000 ? {
+            time: new Date(segment).toISOString().substr(11, 8),
+        } : {
+            time: new Date(segment).toISOString().substr(14, 5),
+        };
+    }) : [];
 
     async function getVideoUrl(id: number) {
         // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
@@ -47,6 +68,36 @@
         );
         const data = await result.json();
         fallbackVideo = data;
+    }
+
+    async function onCastPlayPause() {
+        playerController.playOrPause();
+        isCastPlaying = !player.isPaused;
+    }
+
+    function onCastStop() {
+        playerController.stop();
+        castSession.endSession();
+    }
+
+    function divideCastTime(index: number, total: number) {
+        // 0 -> 0:00
+        // index -> index / total * duration
+        // total -> total converted to hh:mm:ss if > 1h or mm:ss if < 1h
+        const percentage = index / total;
+        const time = percentage * castDuration;
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time - hours * 3600) / 60);
+        const seconds = Math.floor(time - hours * 3600 - minutes * 60);
+        return `${hours > 0 ? hours + ":" : ""}${minutes}:${seconds}`;
+    }
+
+    function changeCastTime(event: any) {
+        const timePercentage = event.target.value;
+        const newTime = timePercentage / 100 * castDuration;
+        player.currentTime = newTime;
+        playerController.seek();
+        secondsWatched = newTime;
     }
 
     $: ep = data.episodes.find((e) => e.number == parseInt(episode));
@@ -69,6 +120,21 @@
 
             if (watched) {
                 clearInterval(watchTimer);
+            }
+        }, 1000);
+
+        castWatchTimer = setInterval(() => {
+            if (!isCastPlaying || secondsWatched >= castDuration) {
+                return;
+            }
+
+            secondsWatched++;
+            // convert to percentage
+            const percentage = secondsWatched / castDuration;
+            castTimePlayer = percentage * 100;
+
+            if (secondsWatched > castDuration) {
+                secondsWatched = castDuration;
             }
         }, 1000);
 
@@ -116,8 +182,8 @@
         //         });
     });
 
-    function playVideoChromecast() {
-        const castSession =
+    async function playVideoChromecast() {
+        castSession = await
             cast.framework.CastContext.getInstance().getCurrentSession();
 
         const currentMediaURL = fallbackVideo;
@@ -128,14 +194,37 @@
             contentType,
         );
         var request = new chrome.cast.media.LoadRequest(mediaInfo);
+
+        if (!castSession) {
+            // wait 2s and retry
+            setTimeout(() => {
+                playVideoChromecast();
+            }, 2000);
+            return;
+        }
         castSession.loadMedia(request).then(
             function () {
                 console.log("Load succeed");
+                isCastPlaying = !player.isPaused;
+                castDuration = player.duration;
+                castTime = player.currentTime;
+                const segmentsVideo = [];
+                const segmentsNumber = 4;
+                for (let i = 0; i < segmentsNumber; i++) {
+                    segmentsVideo.push(
+                        castDuration * (i / (segmentsNumber - 1)) * 1000,
+                    );
+                }
+                videoSegments = segmentsVideo;
             },
             function (errorCode: any) {
                 console.log("Error code: " + errorCode);
+                onCastStop();
             },
         );
+        
+        player = new cast.framework.RemotePlayer();
+        playerController = new cast.framework.RemotePlayerController(player);
     }
 
     function initializeCastApi() {
@@ -153,14 +242,17 @@
                 switch (event.sessionState) {
                     case cast.framework.SessionState.SESSION_STARTED:
                         console.log("CastSession started");
+                        isCastConnected = true;
                         playVideoChromecast();
                         break;
                     case cast.framework.SessionState.SESSION_RESUMED:
                         console.log("CastSession resumed");
+                        isCastConnected = true;
                         playVideoChromecast();
                         break;
                     case cast.framework.SessionState.SESSION_ENDED:
                         console.log("CastSession disconnected");
+                        isCastConnected = false;
                         break;
                 }
             },
@@ -234,7 +326,53 @@
     class="fixed bottom-4 right-4 z-50 w-14 h-14 m-4 p-3 bg-neutral-300 rounded-full cursor-pointer"
 ></google-cast-launcher>
 
-<video
+{#if isCastConnected}
+<div class="w-full flex justify-center">
+    <div class="rounded-xl bg-base-100 flex-1 max-w-3xl p-4 align-middle justify-center flex flex-col gap-2 shadow-lg mb-4">
+        <div class="flex flex-col gap-4">
+            <div class="text-2xl font-bold">
+                Chromecast
+            </div>
+            <div class="flex justify-center gap-4">
+                {#if isCastPlaying}
+                    <button class="btn btn-primary" on:click={onCastPlayPause}>
+                        Pause
+                        <svg
+                            class="w-6 h-6"
+                        >
+                            <use href="{pause}#pause" />
+                        </svg>
+                    </button>
+                {:else}
+                    <button class="btn btn-primary" on:click={onCastPlayPause}>
+                        Play
+                        <svg
+                            class="w-6 h-6"
+                        >
+                            <use href="{play}#play" />
+                        </svg>
+                    </button>
+                {/if}
+                <button class="btn btn-warning" on:click={onCastStop}>
+                    Stop
+                    <svg
+                        class="w-6 h-6"
+                    >
+                        <use href="{stop}#stop" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <input type="range" min="0" max="100" class="range range-primary mt-4" on:change={changeCastTime} bind:value={castTimePlayer}/>
+        <div class="w-full flex justify-between text-xs px-2">
+        {#each timeSegments as segment}
+            <span>{segment.time}</span>
+        {/each}
+        </div>
+    </div>
+</div>
+{:else}
+    <video
     controls
     src={video}
     bind:currentTime={time}
@@ -247,10 +385,12 @@
     }}
     id="main-video-player"
     class="mx-auto h-auto max-h-[70vh]
-        border-transparent focus:outline-none"
->
+        border-transparent focus:outline-none rounded-xl"
+    >
     <track kind="captions" />
-</video>
+    </video>
+{/if}
+
 
 <div
     class="flex flex-col justify-between items-center align-middle gap-5 mt-6"
@@ -415,6 +555,7 @@
 </div>
 
 <style>
+
     .gradient-border {
         background:
             linear-gradient(transparent, transparent) padding-box,

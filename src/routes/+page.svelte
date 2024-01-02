@@ -24,10 +24,12 @@
         });
 
 
-        const prevYear = seasonIndex === 0 ? year - 1 : year;
-        const prevSeasonIndex = seasonIndex === 0 ? 3 : seasonIndex - 1;
+        let filter = `(year = ${year} && season = ${seasonIndex})`;
+        if (seasonIndex === 0) {
+            filter = `((year = ${year} && season = ${seasonIndex}) || (year = ${year - 1} && season = 3))`;
+        }
+        filter += ` && user_id = '${pb.authStore.model?.id}'`;
         
-        const filter = `(year = ${year} && season = ${seasonIndex}) || (year = ${prevYear} && season = ${prevSeasonIndex}) && user_id = '${pb.authStore.model?.id}'`;
         const followedAnimeResult = await pb
             .collection("mau_follows")
             .getFullList({
@@ -133,7 +135,7 @@
 
     .gradient-border::after{
         content: '';
-        filter: blur(.5rem);
+        filter: blur(1.5rem);
         position: absolute;
         inset: 0;
         z-index: -1;
