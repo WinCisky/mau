@@ -38,6 +38,7 @@
     let duration: number;
     let paused = true;
     let volume = 1;
+    let showDub = true;
 
     // rough estimate of how many seconds the user has watched
     let secondsWatched = 0;
@@ -67,6 +68,8 @@
                         };
               })
             : [];
+    
+    $: shownAnimeRelated = showDub ? animeRelated : animeRelated.filter((a) => !a.dub);
 
     async function getVideoUrl(id: number) {
         // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
@@ -149,6 +152,7 @@
         getUserSettings(pb).then((settings) => {
             if (settings) {
                 volume = settings.volume;
+                showDub = settings.dub;
             }
         });
 
@@ -189,13 +193,16 @@
         //         });
 
         // get related anime
+        let filter = `seasons.mal_id ?= '${ep?.expand.anime.mal_id}'`;
+        if (!showDub) {
+            filter += ` && seasons.dub = 0`;
+        }
         pb.collection("mau_related")
             .getFullList({
-                filter: `seasons.mal_id ?= '${ep?.expand.anime.mal_id}'`,
+                filter: filter,
                 expand: "seasons",
             })
             .then((result) => {
-                console.log(result);
                 animeRelated = result[0].expand.seasons as any[];
             });
     });
@@ -574,14 +581,15 @@
             {decodeHTMLEntities(ep?.expand.anime.plot)}
         </p>
 
-        {#if animeRelated.length > 0}
+        {#if shownAnimeRelated.length > 0}
             <div class="flex gap-2 flex-col mt-8 rounded-lg p-4 w-fit max-w-full">
                 <div class="text-2xl font-bold">Related</div>
                 <div class="carousel p-4 space-x-4 rounded-box">
-                    {#each animeRelated as anime, index}
+                    {#each shownAnimeRelated as anime, index}
                         <a
                             class="carousel-item flex flex-col items-center indicator"
                             id="carousel-suggested-{index}"
+                            data-sveltekit-reload
                             href="{base}/player/{anime.slug}/1"
                         >
                             <img
@@ -602,7 +610,7 @@
                 </div>
 
                 <div class="flex justify-center w-full py-2 gap-2">
-                    {#each animeRelated as anime, index}
+                    {#each shownAnimeRelated as anime, index}
                         <a href="#carousel-suggested-{index}" class="btn btn-xs"
                             >{index}</a
                         >
