@@ -53,13 +53,20 @@
     let castTime = 0;
     let castWatchTimer: number;
 
-    $: timeSegments = videoSegments.length > 0 ? videoSegments.map((segment) => {
-        return segment > 3600000 ? {
-            time: new Date(segment).toISOString().substr(11, 8),
-        } : {
-            time: new Date(segment).toISOString().substr(14, 5),
-        };
-    }) : [];
+    let animeRelated = [] as any[];
+
+    $: timeSegments =
+        videoSegments.length > 0
+            ? videoSegments.map((segment) => {
+                  return segment > 3600000
+                      ? {
+                            time: new Date(segment).toISOString().substr(11, 8),
+                        }
+                      : {
+                            time: new Date(segment).toISOString().substr(14, 5),
+                        };
+              })
+            : [];
 
     async function getVideoUrl(id: number) {
         // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
@@ -94,7 +101,7 @@
 
     function changeCastTime(event: any) {
         const timePercentage = event.target.value;
-        const newTime = timePercentage / 100 * castDuration;
+        const newTime = (timePercentage / 100) * castDuration;
         player.currentTime = newTime;
         playerController.seek();
         secondsWatched = newTime;
@@ -180,11 +187,22 @@
         //             episode: ep?.id,
         //             user: pb.authStore.model?.id,
         //         });
+
+        // get related anime
+        pb.collection("mau_related")
+            .getFullList({
+                filter: `seasons.mal_id ?= '${ep?.expand.anime.mal_id}'`,
+                expand: "seasons",
+            })
+            .then((result) => {
+                console.log(result);
+                animeRelated = result[0].expand.seasons as any[];
+            });
     });
 
     async function playVideoChromecast() {
-        castSession = await
-            cast.framework.CastContext.getInstance().getCurrentSession();
+        castSession =
+            await cast.framework.CastContext.getInstance().getCurrentSession();
 
         const currentMediaURL = fallbackVideo;
         const contentType = "video/mp4";
@@ -222,7 +240,7 @@
                 onCastStop();
             },
         );
-        
+
         player = new cast.framework.RemotePlayer();
         playerController = new cast.framework.RemotePlayerController(player);
     }
@@ -327,74 +345,78 @@
 ></google-cast-launcher>
 
 {#if isCastConnected}
-<div class="w-full flex justify-center">
-    <div class="rounded-xl bg-base-100 flex-1 max-w-3xl p-4 align-middle justify-center flex flex-col gap-2 shadow-lg mb-4">
-        <div class="flex flex-col gap-4">
-            <div class="text-2xl font-bold">
-                Chromecast
-            </div>
-            <div class="flex justify-center gap-4">
-                {#if isCastPlaying}
-                    <button class="btn btn-primary" on:click={onCastPlayPause}>
-                        Pause
-                        <svg
-                            class="w-6 h-6"
+    <div class="w-full flex justify-center">
+        <div
+            class="rounded-xl bg-base-100 flex-1 max-w-3xl p-4 align-middle justify-center flex flex-col gap-2 shadow-lg mb-4"
+        >
+            <div class="flex flex-col gap-4">
+                <div class="text-2xl font-bold">Chromecast</div>
+                <div class="flex justify-center gap-4">
+                    {#if isCastPlaying}
+                        <button
+                            class="btn btn-primary"
+                            on:click={onCastPlayPause}
                         >
-                            <use href="{pause}#pause" />
+                            Pause
+                            <svg class="w-6 h-6">
+                                <use href="{pause}#pause" />
+                            </svg>
+                        </button>
+                    {:else}
+                        <button
+                            class="btn btn-primary"
+                            on:click={onCastPlayPause}
+                        >
+                            Play
+                            <svg class="w-6 h-6">
+                                <use href="{play}#play" />
+                            </svg>
+                        </button>
+                    {/if}
+                    <button class="btn btn-warning" on:click={onCastStop}>
+                        Stop
+                        <svg class="w-6 h-6">
+                            <use href="{stop}#stop" />
                         </svg>
                     </button>
-                {:else}
-                    <button class="btn btn-primary" on:click={onCastPlayPause}>
-                        Play
-                        <svg
-                            class="w-6 h-6"
-                        >
-                            <use href="{play}#play" />
-                        </svg>
-                    </button>
-                {/if}
-                <button class="btn btn-warning" on:click={onCastStop}>
-                    Stop
-                    <svg
-                        class="w-6 h-6"
-                    >
-                        <use href="{stop}#stop" />
-                    </svg>
-                </button>
+                </div>
             </div>
-        </div>
-        <input type="range" min="0" max="100" class="range range-primary mt-4" on:change={changeCastTime} bind:value={castTimePlayer}/>
-        <div class="w-full flex justify-between text-xs px-2">
-        {#each timeSegments as segment}
-            <span>{segment.time}</span>
-        {/each}
+            <input
+                type="range"
+                min="0"
+                max="100"
+                class="range range-primary mt-4"
+                on:change={changeCastTime}
+                bind:value={castTimePlayer}
+            />
+            <div class="w-full flex justify-between text-xs px-2">
+                {#each timeSegments as segment}
+                    <span>{segment.time}</span>
+                {/each}
+            </div>
         </div>
     </div>
-</div>
 {:else}
     <video
-    controls
-    src={video}
-    bind:currentTime={time}
-    bind:duration
-    bind:paused
-    bind:volume
-    on:volumechange={() => {
-        if (typeof localStorage !== "undefined")
-            localStorage.setItem("volume", volume.toString());
-    }}
-    id="main-video-player"
-    class="mx-auto h-auto max-h-[70vh]
+        controls
+        src={video}
+        bind:currentTime={time}
+        bind:duration
+        bind:paused
+        bind:volume
+        on:volumechange={() => {
+            if (typeof localStorage !== "undefined")
+                localStorage.setItem("volume", volume.toString());
+        }}
+        id="main-video-player"
+        class="mx-auto h-auto max-h-[70vh]
         border-transparent focus:outline-none rounded-xl"
     >
-    <track kind="captions" />
+        <track kind="captions" />
     </video>
 {/if}
 
-
-<div
-    class="flex flex-col justify-between items-center align-middle gap-5 mt-6"
->
+<div class="flex flex-col justify-between items-center align-middle gap-5 mt-6">
     <div class="join flex flex-wrap gap-y-2">
         {#if ep?.expand.anime.episodes_count}
             {#each Array(ep?.expand.anime.episodes_count) as _, i}
@@ -430,7 +452,7 @@
     </div>
 </div>
 
-<div class="flex justify-center items-center flex-col lg:flex-row gap-24 my-6">
+<div class="flex justify-center items-start flex-col lg:flex-row gap-24 my-6">
     <div
         class="indicator w-3/4 md:w-fit rounded-xl {isFavorite
             ? 'gradient-border'
@@ -466,7 +488,7 @@
         </span>
     </div>
 
-    <div class="flex-1 p-4 rounded-xl bg-base-100">
+    <div class="flex-1 p-4 rounded-xl bg-base-100 max-w-[70%]">
         <h2 class="text-2xl font-bold">
             {ep?.expand.anime.title
                 ? decodeHTMLEntities(ep.expand.anime.title)
@@ -551,11 +573,47 @@
         <p class="mt-8">
             {decodeHTMLEntities(ep?.expand.anime.plot)}
         </p>
+
+        {#if animeRelated.length > 0}
+            <div class="flex gap-2 flex-col mt-8 rounded-lg p-4 w-fit max-w-full">
+                <div class="text-2xl font-bold">Related</div>
+                <div class="carousel p-4 space-x-4 rounded-box">
+                    {#each animeRelated as anime, index}
+                        <a
+                            class="carousel-item flex flex-col items-center indicator"
+                            id="carousel-suggested-{index}"
+                            href="{base}/player/{anime.slug}/1"
+                        >
+                            <img
+                                src={anime.imageurl}
+                                alt={anime.title}
+                                class="max-w-xs max-h-80 rounded-xl w-full h-full object-cover"
+                            />
+                            <div class="indicator-item indicator-bottom indicator-center badge badge-accent">
+                                {anime.date}
+                            </div>
+                            {#if anime.dub}
+                                <div class="indicator-item indicator-top indicator-center badge badge-secondary">
+                                    DUB
+                                </div>
+                            {/if}
+                </a>
+                    {/each}
+                </div>
+
+                <div class="flex justify-center w-full py-2 gap-2">
+                    {#each animeRelated as anime, index}
+                        <a href="#carousel-suggested-{index}" class="btn btn-xs"
+                            >{index}</a
+                        >
+                    {/each}
+                </div>
+            </div>
+        {/if}
     </div>
 </div>
 
 <style>
-
     .gradient-border {
         background:
             linear-gradient(transparent, transparent) padding-box,
