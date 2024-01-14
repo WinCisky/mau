@@ -488,7 +488,7 @@
         </span>
     </div>
 
-    <div class="flex-1 p-4 rounded-xl bg-base-100 max-w-[70%]">
+    <div class="flex-1 p-4 rounded-xl bg-base-100 max-w-full xl:max-w-[70%]">
         <h2 class="text-2xl font-bold">
             {ep?.expand.anime.title
                 ? decodeHTMLEntities(ep.expand.anime.title)
