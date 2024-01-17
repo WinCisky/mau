@@ -159,8 +159,8 @@
         </div>
     </div>
 
-    <dialog id="my_modal_search" class="modal modal-top md:modal-middle">
-        <form method="dialog" class="modal-box w-full md:w-fit !max-w-none">
+    <dialog id="my_modal_search" class="modal modal-top">
+        <form method="dialog" class="modal-box w-full !max-w-none">
             <div class="flex flex-col justify-center items-center">
                 <div>
                     <input

@@ -340,9 +340,9 @@
 
 <svelte:head>
     <title
-        >Mau - {ep?.expand.anime.title
-            ? decodeHTMLEntities(ep?.expand.anime.title)
-            : decodeHTMLEntities(ep?.expand.anime.title_eng)} - episode {episode}</title
+        >Mau - {ep?.expand.anime.title_eng
+            ? decodeHTMLEntities(ep?.expand.anime.title_eng)
+            : decodeHTMLEntities(ep?.expand.anime.title)} - episode {episode}</title
     >
 </svelte:head>
 
@@ -497,9 +497,9 @@
 
     <div class="flex-1 p-4 rounded-xl bg-base-100 max-w-full xl:max-w-[70%]">
         <h2 class="text-2xl font-bold">
-            {ep?.expand.anime.title
-                ? decodeHTMLEntities(ep.expand.anime.title)
-                : decodeHTMLEntities(ep?.expand.anime.title_eng)}
+            {ep?.expand.anime.title_eng
+                ? decodeHTMLEntities(ep.expand.anime.title_eng)
+                : decodeHTMLEntities(ep?.expand.anime.title)}
         </h2>
         <p class="mt-4">
             Studio:
