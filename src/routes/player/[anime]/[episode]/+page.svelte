@@ -459,7 +459,7 @@
     </div>
 </div>
 
-<div class="flex justify-center items-start flex-col lg:flex-row gap-24 my-6">
+<div class="flex justify-center items-center lg:items-start flex-col gap-2 lg:flex-row my-6">
     <div
         class="indicator w-3/4 md:w-fit rounded-xl {isFavorite
             ? 'gradient-border'
@@ -486,10 +486,10 @@
                 </button>
             </span>
         {/if}
-        <span class="indicator-item indicator-start badge badge-neutral">
+        <span class="indicator-item indicator-center badge badge-neutral">
             {ep?.expand.anime.day}
         </span>
-        <span class="indicator-item indicator-bottom badge badge-accent">
+        <span class="indicator-item indicator-bottom indicator-center badge badge-accent">
             {ep?.expand.anime.season}
             {ep?.expand.anime.date}
         </span>
@@ -612,7 +612,7 @@
                 <div class="flex justify-center w-full py-2 gap-2">
                     {#each shownAnimeRelated as anime, index}
                         <a href="#carousel-suggested-{index}" class="btn btn-xs"
-                            >{index}</a
+                            >{index + 1}</a
                         >
                     {/each}
                 </div>
