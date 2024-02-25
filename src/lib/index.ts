@@ -1,3 +1,4 @@
+import { base } from "$app/paths";
 // place files you want to import through the `$lib` alias in this folder.
 
 export function decodeHTMLEntities(str: string | undefined) {
@@ -33,6 +34,6 @@ export function capitalizeFirstLetter(string: string) {
 }
 
 export function fallbackImage(img: string) {
-    if (img.includes("forbiddenlol")) return "/nope.webp";
+    if (img.includes("forbiddenlol")) return `${base}/nope.webp`;
     return img;
 }
