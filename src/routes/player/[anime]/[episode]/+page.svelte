@@ -7,10 +7,10 @@
     import type { PageData } from "./$types";
     export let data: PageData;
 
-    import hearth from "$lib/assets/icons/hearth.svg";
-    import play from "$lib/assets/icons/play.svg";
-    import pause from "$lib/assets/icons/pause.svg";
-    import stop from "$lib/assets/icons/stop.svg";
+    import hearth from "$lib/assets/icons/hearth.svg?raw";
+    import play from "$lib/assets/icons/play.svg?raw";
+    import pause from "$lib/assets/icons/pause.svg?raw";
+    import stop from "$lib/assets/icons/stop.svg?raw";
     import { getUserSettings } from "$lib/db_helper";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
@@ -366,7 +366,7 @@
                         >
                             Pause
                             <svg class="w-6 h-6">
-                                <use href="{pause}#pause" />
+                                {@html pause}
                             </svg>
                         </button>
                     {:else}
@@ -376,14 +376,14 @@
                         >
                             Play
                             <svg class="w-6 h-6">
-                                <use href="{play}#play" />
+                                {@html play}
                             </svg>
                         </button>
                     {/if}
                     <button class="btn btn-warning" on:click={onCastStop}>
                         Stop
                         <svg class="w-6 h-6">
-                            <use href="{stop}#stop" />
+                            {@html stop}
                         </svg>
                     </button>
                 </div>
@@ -481,7 +481,7 @@
                             ? 'fill-red-600'
                             : 'stroke-base-content fill-none'}"
                     >
-                        <use href="{hearth}#hearth" />
+                        {@html hearth}
                     </svg>
                 </button>
             </span>
