@@ -2,7 +2,7 @@
     import { base } from "$app/paths";
     import { onMount, onDestroy } from "svelte";
     import { page } from "$app/stores";
-    import { decodeHTMLEntities, getSeasonIndex } from "$lib";
+    import { decodeHTMLEntities, fallbackImage, getSeasonIndex } from "$lib";
     import PocketBase from "pocketbase";
     import type { PageData } from "./$types";
     export let data: PageData;
@@ -467,7 +467,7 @@
     >
         <img
             class="w-full md:max-w-xs h-full object-contain rounded-xl"
-            src={ep?.expand.anime.imageurl}
+            src={fallbackImage(ep?.expand.anime.imageurl ?? '')}
             alt={decodeHTMLEntities(ep?.expand.anime.title_eng)}
         />
         {#if pb.authStore.isValid}

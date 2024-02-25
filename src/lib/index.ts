@@ -31,3 +31,8 @@ export function getSeasonIndex() {
 export function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+export function fallbackImage(img: string) {
+    if (img.includes("forbiddenlol")) return "/nope.webp";
+    return img;
+}

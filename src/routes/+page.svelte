@@ -2,7 +2,7 @@
     import { base } from "$app/paths";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
-    import { getSeasonIndex } from "$lib";
+    import { fallbackImage, getSeasonIndex } from "$lib";
     import { watched } from "../stores";
     import { getLatestEpisodes } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
@@ -109,7 +109,7 @@
                     <!-- add episode number -->
                     <img
                         class="rounded-xl w-full h-full object-cover"
-                        src={episode.expand.anime.imageurl}
+                        src={fallbackImage(episode.expand.anime.imageurl)}
                         alt={episode.expand.anime.title}
                     />
                 </a>
