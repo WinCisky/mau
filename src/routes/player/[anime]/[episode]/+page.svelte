@@ -609,7 +609,7 @@
                     {/each}
                 </div>
 
-                <div class="flex justify-center w-full py-2 gap-2">
+                <div class="flex justify-center w-full py-2 gap-2 flex-wrap">
                     {#each shownAnimeRelated as anime, index}
                         <a href="#carousel-suggested-{index}" class="btn btn-xs"
                             >{index + 1}</a

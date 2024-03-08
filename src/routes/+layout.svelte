@@ -57,7 +57,7 @@
         />
         <div class="navbar bg-base-300">
             <div class="flex-1">
-                <a class="btn btn-ghost normal-case text-xl" href="{base}/"
+                <a class="btn btn-ghost normal-case text-xl" href={base || "/"}
                     >Mau</a
                 >
             </div>
@@ -127,6 +127,12 @@
             <!-- Sidebar content here -->
             <h2 class="text-lg font-semibold mb-6">History</h2>
             <div class="flex flex-col justify-center gap-4 pb-10">
+                <!-- if not logged in -->
+                {#if !pb.authStore.isValid}
+                    <a href={`${base}/settings`} data-sveltekit-reload class="btn btn-info w-full">
+                        Login
+                    </a>
+                {/if}
                 {#each $history as item}
                     <a
                         class="card bg-base-300 shadow-xl image-full max-h-24"
@@ -142,14 +148,18 @@
                         </figure>
                         <div class="card-body !p-2">
                             <p class="text-lg font-bold flex items-end flex-1">
-                                {item.expand.episode.expand.anime.title_eng.length > 25
+                                {item.expand.episode.expand.anime.title_eng
+                                    .length > 25
                                     ? `${item.expand.episode.expand.anime.title_eng.slice(
                                           0,
                                           25,
                                       )}...`
-                                    : item.expand.episode.expand.anime.title_eng}
+                                    : item.expand.episode.expand.anime
+                                          .title_eng}
                             </p>
-                            <p class="text-sm font-semibold flex items-start flex-1">
+                            <p
+                                class="text-sm font-semibold flex items-start flex-1"
+                            >
                                 Episode: {item.expand.episode.number}
                             </p>
                         </div>
