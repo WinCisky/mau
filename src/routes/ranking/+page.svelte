@@ -83,8 +83,7 @@
                 <tr>
                     <th>Studio</th>
                     <th>Name</th>
-                    <th>Episodes</th>
-                    <th></th>
+                    <th class="hidden md:table-cell">Episodes</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,7 +97,7 @@
                                         class="avatar"
                                     >
                                         <div
-                                            class="mask mask-squircle w-12 h-12"
+                                            class="mask mask-squircle w-20 h-20"
                                         >
                                             <img
                                                 src="{anime.imageurl}"
@@ -107,7 +106,7 @@
                                         </div>
                                     </a>
                                     <div>
-                                        <div class="font-bold mb-1">
+                                        <div class="mb-1">
                                             {anime.studio}
                                         </div>
                                         <span class="badge badge-secondary badge-sm">
@@ -117,7 +116,9 @@
                                 </div>
                             </td>
                             <td>
-                                {@html anime.title_eng}
+                                <div class="font-bold ">
+                                    {@html anime.title_eng}
+                                </div>
                                 <br />
                                 {#if anime.dub == 1}
                                     <span class="badge badge-accent badge-sm"
@@ -125,7 +126,9 @@
                                     >
                                 {/if}
                             </td>
-                            <td>{anime.episodes_count > 0 ? anime.episodes_count : ''}</td>
+                            <td class="hidden md:table-cell">
+                                {anime.episodes_count > 0 ? anime.episodes_count : ''}
+                            </td>
                         </tr>
                     {/each}
                 {:else if isLoading}
@@ -155,7 +158,7 @@
                 <tr>
                     <th>Studio</th>
                     <th>Name</th>
-                    <th>Episodes</th>
+                    <th class="hidden md:table-cell">Episodes</th>
                 </tr>
             </tfoot>
         </table>
