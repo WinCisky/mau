@@ -1,4 +1,10 @@
+import { getCurrentSeason } from "$lib";
 import type PocketBase from "pocketbase";
+
+const summer = "Estate";
+const winter = "Inverno";
+const spring = "Autunno";
+const fall = "Primavera";
 
 export async function searchAnime(pb: PocketBase, searchText: string) {
     const resultList = await pb.collection("mau_anime").getList(1, 20, {
@@ -160,6 +166,23 @@ export async function setUserTheme(pb: PocketBase, theme: string) {
     }
 
     // const user_settings = await pb.collection('mau_users').update('');
+}
+
+export async function getTopSeasonalAnime(pb: PocketBase, page: number = 1) {
+    const year = new Date().getFullYear();
+    const season = getCurrentSeason(winter, spring, summer, fall);
+    return pb.collection('mau_anime').getList(page, 20, {
+        filter: `visite > 10000 && season='${season}' && date ~ '${year}'`,
+        sort: '-score',
+        expand: 'anime',
+    });
+}
+
+export async function getAnimeEpisodesCount(pb: PocketBase, anime_id: number) {
+    const { totalItems } = await pb.collection('mau_episodes').getList(1, 1, {
+        filter: `anime.mau_id=${anime_id}`,
+    });
+    return totalItems;
 }
 
 interface UserSettings {
