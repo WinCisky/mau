@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { getAnimeEpisodesCount, getTopSeasonalAnime } from "$lib/db_helper";
+    import { getAnimeEpisodesCount, getTopAllTimeAnime, getTopPopularAnime, getTopSeasonalAnime } from "$lib/db_helper";
     import PocketBase, { ListResult } from "pocketbase";
     import { base } from "$app/paths";
 
@@ -15,13 +15,13 @@
         let newData: ListResult<Record<string, any>> | null = null;
         switch (activeTab) {
             case "All time":
-                // getTopAllTimeAnime(pb, page);
+                newData = await getTopAllTimeAnime(pb, page);
                 break;
             case "Seasonal":
                 newData = await getTopSeasonalAnime(pb, page);
                 break;
             case "Popular":
-                // getTopPopularAnime(pb, page);
+                newData = await getTopPopularAnime(pb, page);
                 break;
         }
         // merge
@@ -33,7 +33,6 @@
             }
         }
         isLoading = false;
-        console.log(data);
     }
 
     function loadMore() {
@@ -44,6 +43,7 @@
     function setTab(tab: string) {
         activeTab = tab;
         page = 1;
+        data = null;
         loadCategory();
     }
 
@@ -55,7 +55,6 @@
 <div class="flex flex-col items-center gap-8">
     <div role="tablist" class="tabs tabs-boxed w-fit">
         <button
-            disabled
             role="tab"
             class="tab"
             on:click={() => setTab("All time")}
@@ -68,7 +67,6 @@
             class:tab-active={activeTab === "Seasonal"}>Seasonal</button
         >
         <button
-            disabled
             role="tab"
             class="tab"
             on:click={() => setTab("Popular")}
@@ -76,7 +74,7 @@
         >
     </div>
 
-    <div class="overflow-x-auto bg-base-100 p-4 rounded-lg">
+    <div class="overflow-x-auto bg-base-100 p-4 rounded-lg max-w-screen-lg">
         <table class="table">
             <!-- head -->
             <thead>
@@ -165,7 +163,7 @@
     </div>
 
     <div class="flex justify-center">
-        <button disabled class="btn btn-primary" on:click={loadMore}>
+        <button class="btn btn-primary" on:click={loadMore}>
             Load more
         </button>
     </div>

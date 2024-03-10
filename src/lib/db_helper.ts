@@ -168,13 +168,26 @@ export async function setUserTheme(pb: PocketBase, theme: string) {
     // const user_settings = await pb.collection('mau_users').update('');
 }
 
+export async function getTopAllTimeAnime(pb: PocketBase, page: number = 1) {
+    return pb.collection('mau_anime').getList(page, 20, {
+        filter: `visite > 10000`,
+        sort: '-score',
+    });
+}
+
 export async function getTopSeasonalAnime(pb: PocketBase, page: number = 1) {
     const year = new Date().getFullYear();
     const season = getCurrentSeason(winter, spring, summer, fall);
     return pb.collection('mau_anime').getList(page, 20, {
         filter: `visite > 10000 && season='${season}' && date ~ '${year}'`,
         sort: '-score',
-        expand: 'anime',
+    });
+}
+
+export async function getTopPopularAnime(pb: PocketBase, page: number = 1) {
+    return pb.collection('mau_anime').getList(page, 20, {
+        filter: `visite > 10000`,
+        sort: '-visite',
     });
 }
 
