@@ -37,3 +37,9 @@ export function fallbackImage(img: string) {
     if (img.includes("forbiddenlol")) return `${base}/nope.webp`;
     return img;
 }
+
+export function smallImage(img: string) {
+    // if it's mobile, use the small images
+    if (window.innerWidth < 768) return img.replace(/l(.webp)$/, '$1');
+    return img;
+}

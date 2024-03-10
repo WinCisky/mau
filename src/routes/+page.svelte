@@ -2,7 +2,7 @@
     import { base } from "$app/paths";
     import PocketBase, { ListResult } from "pocketbase";
     import { onMount } from "svelte";
-    import { fallbackImage, getSeasonIndex } from "$lib";
+    import { fallbackImage, getSeasonIndex, smallImage } from "$lib";
     import { watched } from "../stores";
     import { getLatestEpisodes } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
@@ -59,7 +59,7 @@
 
 <div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10 mt-0 md:mt-4">
     {#if episodes && episodes.length > 0}
-        {#each episodes as episode}
+        {#each episodes as episode, index}
             <div class="indicator h-52 md:h-80">
                 <span
                     class="indicator-item indicator-start badge badge-neutral"
@@ -111,8 +111,10 @@
                     <!-- add episode number -->
                     <img
                         class="rounded-xl w-full h-full object-cover"
-                        src={fallbackImage(episode.expand.anime.imageurl)}
+                        src={fallbackImage(smallImage(episode.expand.anime.imageurl))}
+                        srcset={fallbackImage(episode.expand.anime.imageurl) + " 2x"}
                         alt={episode.expand.anime.title}
+                        loading="{index > 1 ? 'lazy' : 'eager'}"
                     />
                 </a>
             </div>
