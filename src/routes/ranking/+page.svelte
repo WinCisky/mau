@@ -3,6 +3,7 @@
     import { getAnimeEpisodesCount, getTopAllTimeAnime, getTopPopularAnime, getTopSeasonalAnime } from "$lib/db_helper";
     import PocketBase, { ListResult } from "pocketbase";
     import { base } from "$app/paths";
+    import { fallbackImage } from "$lib";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
 
@@ -98,8 +99,8 @@
                                             class="mask mask-squircle w-20 h-20"
                                         >
                                             <img
-                                                src="{anime.imageurl}"
-                                                alt="Avatar Tailwind CSS Component"
+                                                src="{fallbackImage(anime.imageurl ?? '')}"
+                                                alt="{anime.title_eng}"
                                             />
                                         </div>
                                     </a>

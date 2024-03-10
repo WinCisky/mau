@@ -65,6 +65,7 @@
                 <a
                     class="btn btn-ghost btn-circle"
                     href="{base}/ranking"
+                    aria-label="Ranking"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -88,6 +89,7 @@
                 </a>
                 <button
                     class="btn btn-ghost btn-circle"
+                    aria-label="Search"
                     on:click={() => {
                         // @ts-ignore
                         document.getElementById("my_modal_search").showModal();
@@ -144,7 +146,7 @@
         </div>
     </div>
     <div class="drawer-side z-10">
-        <label for="my-drawer" class="drawer-overlay" />
+        <label for="my-drawer" class="drawer-overlay" aria-label="Drawer" />
         <div
             class="menu p-4 w-80 h-full bg-base-200 text-base-content overflow-hidden flex-nowrap"
         >

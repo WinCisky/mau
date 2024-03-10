@@ -51,6 +51,7 @@
 
 <svelte:head>
     <title>Mau</title>
+    <meta name="description" content="mau" />
 </svelte:head>
 
 <!-- needed for static compilation -->
@@ -105,6 +106,7 @@
                         ? 'border-2 gradient-border'
                         : ''}"
                     href={`${base}/player/${episode.expand.anime.slug}/${episode.number}`}
+                    aria-label={`Watch ${episode.expand.anime.title} episode ${episode.number}`}
                 >
                     <!-- add episode number -->
                     <img
