@@ -25,13 +25,19 @@ export async function getLatestEpisodes(pb: PocketBase, page: number = 1) {
         if (settings != null) {
             const ona = settings.ona;
             const dub = settings.dub;
+            const nsfw = settings.nsfw;
             if (!ona) {
                 filter += " && anime.type!='ONA'";
             }
             if (!dub) {
                 filter += " && anime.dub=0";
             }
+            if (!nsfw) {
+                filter += " && anime.nsfw!='gray'";
+            }
         }
+    } else {
+        filter += " && anime.nsfw!='gray'";
     }
 
     return pb.collection('mau_episodes').getList(page, 30, {
@@ -212,6 +218,7 @@ export class UserSettingsDefaults implements UserSettings {
     ona = true;
     dub = true;
     mirror = true;
+    nsfw = false;
     volume = 1;
     theme = 'default';
 }

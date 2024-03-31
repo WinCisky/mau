@@ -61,6 +61,7 @@
     let ona = true;
     let dub = true;
     let mirror = true;
+    let nsfw = false;
     let settings = new UserSettingsDefaults();
 
     // save theme on change
@@ -91,6 +92,14 @@
         }
     }
 
+    $: {
+        nsfw;
+        if (settingsInitialized && nsfw !== settings.nsfw) {
+            settings.nsfw = nsfw;
+            setUserSettings(pb, settings);
+        }
+    }
+
     onMount(() => {
         isLogged = pb.authStore.isValid;
         if (isLogged) {
@@ -103,9 +112,11 @@
             settings.dub = res.dub;
             settings.ona = res.ona;
             settings.mirror = res.mirror;
+            settings.nsfw = res.nsfw;
             ona = res.ona;
             dub = res.dub;
             mirror = res.mirror;
+            nsfw = res.nsfw;
             // set settingsInitialized to true after 1 s
             setTimeout(() => {
                 settingsInitialized = true;
@@ -192,18 +203,17 @@
                                 />
                             </div>
                         </div>
-                        {#if false}
+                        <!-- nsfw -->
                         <div class="form-control w-52">
                             <div class="flex gap-4 justify-between">
-                                <p>Mirror</p>
+                                <p>NSFW</p>
                                 <input
                                     type="checkbox"
-                                    class="toggle"
-                                    bind:checked={mirror}
+                                    class="toggle toggle-danger"
+                                    bind:checked={nsfw}
                                 />
                             </div>
                         </div>
-                        {/if}
                         <div>
                             <label class="label" for="theme-select">Theme</label
                             >

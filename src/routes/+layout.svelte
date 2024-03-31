@@ -31,6 +31,7 @@
             }
             settings.dub = res?.dub ?? true;
             settings.ona = res?.ona ?? true;
+            settings.nsfw = res?.nsfw ?? false;
         });
 
         if (pb.authStore.isValid) {
