@@ -125,7 +125,9 @@
             </button>
         </div>
     {:else}
-        <span class="loading loading-spinner loading-lg" />
+        {#each Array.from({ length: 10 }) as _}
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        {/each}
     {/if}
 </div>
 
