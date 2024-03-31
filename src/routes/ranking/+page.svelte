@@ -36,21 +36,50 @@
         isLoading = false;
     }
 
-    function loadMore() {
+    async function loadMore() {
         page++;
-        loadCategory();
+        await loadCategory();
+        loadBackgroundImages();
     }
 
-    function setTab(tab: string) {
+    async function setTab(tab: string) {
+        isLoading = true;
         activeTab = tab;
         page = 1;
         data = null;
-        loadCategory();
+        await loadCategory();
+        loadBackgroundImages();
     }
 
     onMount(async () => {
-        loadCategory();
+        await loadCategory();
+        await loadBackgroundImages();
     });
+
+    async function setBackgroundImage(element: HTMLElement, id: string) {
+        const imgUrl = `http://img.youtube.com/vi/${id}/0.jpg`;
+        // const imgUrl = `http://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+        // element.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6)), url(${imgUrl})`;
+        element.style.backgroundImage = `linear-gradient(var(--fallback-b2, oklch(var(--b2) / 0.7)),var(--fallback-b2, oklch(var(--b2) / 0.6))), url(${imgUrl})`;
+        element.onerror = () => {
+            console.log("error");
+        };
+    }
+
+    async function loadBackgroundImages() {
+        if (!data) return;
+        for (const anime of data?.items) {
+            const element = document.getElementById(`bck-${anime.id}`);
+            // console.log(element);
+            if (element && anime.video && anime.video != '-') {
+                await setBackgroundImage(element, anime.video);
+            } else if (element && anime.cover && !anime.cover.includes("forbiddenlol")) {
+                element.style.backgroundImage = `linear-gradient(var(--fallback-b2, oklch(var(--b2) / 0.7)),var(--fallback-b2, oklch(var(--b2) / 0.6))), url(${anime.cover})`;
+            } else if (element && anime.imageurl) {
+                element.style.backgroundImage = `linear-gradient(var(--fallback-b2, oklch(var(--b2) / 0.7)),var(--fallback-b2, oklch(var(--b2) / 0.6))), url(${anime.imageurl})`;
+            }
+        }
+    }
 </script>
 
 <div class="flex flex-col items-center gap-8">
@@ -75,28 +104,20 @@
         >
     </div>
 
-    <div class="overflow-x-auto bg-base-100 p-4 rounded-lg max-w-screen-lg">
+    <div class="overflow-x-auto bg-base-100 rounded-lg max-w-screen-lg">
         <table class="table">
-            <!-- head -->
-            <thead>
-                <tr>
-                    <th>Studio</th>
-                    <th>Name</th>
-                    <th class="hidden md:table-cell">Episodes</th>
-                </tr>
-            </thead>
             <tbody>
                 {#if data && data.items.length > 0}
                     {#each data.items as anime}
-                        <tr>
+                        <tr id="bck-{anime.id}" class="bg-center bg-no-repeat bg-cover border-none">
                             <td>
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-3 max-w-xs">
                                     <a 
                                         href="{base}/player/{anime.slug}/1"
                                         class="avatar"
                                     >
                                         <div
-                                            class="mask mask-squircle w-20 h-20"
+                                            class="mask mask-squircle w-28 h-28"
                                         >
                                             <img
                                                 src="{fallbackImage(anime.imageurl ?? '')}"
@@ -106,7 +127,7 @@
                                     </a>
                                     <div>
                                         <div class="mb-1">
-                                            {anime.studio}
+                                            {@html anime.studio}
                                         </div>
                                         <span class="badge badge-secondary badge-sm">
                                             {anime.type}
@@ -115,7 +136,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="font-bold ">
+                                <div class="font-bold text-lg max-w-sm">
                                     {@html anime.title_eng}
                                 </div>
                                 <br />
@@ -125,24 +146,21 @@
                                     >
                                 {/if}
                             </td>
-                            <td class="hidden md:table-cell">
-                                {anime.episodes_count > 0 ? anime.episodes_count : ''}
-                            </td>
                         </tr>
                     {/each}
                 {:else if isLoading}
-                    {#each [1, 2, 3] as _}
+                    {#each [1, 2, 3, 4, 5] as _}
                         <tr>
                             <td class="text-center">
                                 <div
-                                    class="skeleton w-12 h-12 rounded-full"
+                                    class="skeleton w-28 h-28 rounded-full"
                                 ></div>
                             </td>
                             <td class="text-center">
-                                <div class="skeleton h-4 w-20"></div>
+                                <div class="skeleton h-4 w-12 md:w-44"></div>
                             </td>
                             <td class="text-center">
-                                <div class="skeleton h-4 w-20"></div>
+                                <div class="skeleton h-4 w-12 md:w-44"></div>
                             </td>
                         </tr>
                     {/each}
@@ -152,14 +170,6 @@
                     </tr>
                 {/if}
             </tbody>
-            <!-- foot -->
-            <tfoot>
-                <tr>
-                    <th>Studio</th>
-                    <th>Name</th>
-                    <th class="hidden md:table-cell">Episodes</th>
-                </tr>
-            </tfoot>
         </table>
     </div>
 
