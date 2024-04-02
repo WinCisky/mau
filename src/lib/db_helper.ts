@@ -3,8 +3,8 @@ import type PocketBase from "pocketbase";
 
 const summer = "Estate";
 const winter = "Inverno";
-const spring = "Autunno";
-const fall = "Primavera";
+const spring = "Primavera";
+const fall = "Autunno";
 
 export async function searchAnime(pb: PocketBase, searchText: string) {
     const resultList = await pb.collection("mau_anime").getList(1, 20, {
@@ -184,8 +184,9 @@ export async function getTopAllTimeAnime(pb: PocketBase, page: number = 1) {
 export async function getTopSeasonalAnime(pb: PocketBase, page: number = 1) {
     const year = new Date().getFullYear();
     const season = getCurrentSeason(winter, spring, summer, fall);
+    console.log(season);
     return pb.collection('mau_anime').getList(page, 20, {
-        filter: `visite > 10000 && season='${season}' && date ~ '${year}'`,
+        filter: `season='${season}' && date = "${year}"`,
         sort: '-score',
     });
 }
