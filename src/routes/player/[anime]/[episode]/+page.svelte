@@ -203,7 +203,8 @@
                 expand: "seasons",
             })
             .then((result) => {
-                animeRelated = result[0].expand.seasons as any[];
+                if (result.length > 0)
+                    animeRelated = result[0].expand.seasons as any[];
             });
     });
 

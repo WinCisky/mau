@@ -182,13 +182,17 @@ export async function getTopAllTimeAnime(pb: PocketBase, page: number = 1) {
 }
 
 export async function getTopSeasonalAnime(pb: PocketBase, page: number = 1) {
-    const year = new Date().getFullYear();
-    const season = getCurrentSeason(winter, spring, summer, fall);
-    console.log(season);
-    return pb.collection('mau_anime').getList(page, 20, {
-        filter: `season='${season}' && date = "${year}"`,
-        sort: '-score',
-    });
+    // const year = new Date().getFullYear();
+    // const season = getCurrentSeason(winter, spring, summer, fall);
+    // console.log(season);
+    // return pb.collection('mau_anime').getList(page, 20, {
+    //     filter: `season='${season}' && date = "${year}"`,
+    //     sort: '-score',
+    // });
+
+    // https://dev.opentrust.it/api/mau/classific/seasonal
+    const classificSeasonal = await fetch('https://dev.opentrust.it/api/mau/classific/seasonal');
+    return classificSeasonal.json();
 }
 
 export async function getTopPopularAnime(pb: PocketBase, page: number = 1) {

@@ -1,6 +1,10 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { getAnimeEpisodesCount, getTopAllTimeAnime, getTopPopularAnime, getTopSeasonalAnime } from "$lib/db_helper";
+    import {
+        getTopAllTimeAnime,
+        getTopPopularAnime,
+        getTopSeasonalAnime
+    } from "$lib/db_helper";
     import PocketBase, { ListResult } from "pocketbase";
     import { base } from "$app/paths";
     import { fallbackImage } from "$lib";
@@ -71,9 +75,13 @@
         for (const anime of data?.items) {
             const element = document.getElementById(`bck-${anime.id}`);
             // console.log(element);
-            if (element && anime.video && anime.video != '-') {
+            if (element && anime.video && anime.video != "-") {
                 await setBackgroundImage(element, anime.video);
-            } else if (element && anime.cover && !anime.cover.includes("forbiddenlol")) {
+            } else if (
+                element &&
+                anime.cover &&
+                !anime.cover.includes("forbiddenlol")
+            ) {
                 element.style.backgroundImage = `linear-gradient(var(--fallback-b2, oklch(var(--b2) / 0.7)),var(--fallback-b2, oklch(var(--b2) / 0.6))), url(${anime.cover})`;
             } else if (element && anime.imageurl) {
                 element.style.backgroundImage = `linear-gradient(var(--fallback-b2, oklch(var(--b2) / 0.7)),var(--fallback-b2, oklch(var(--b2) / 0.6))), url(${anime.imageurl})`;
@@ -109,19 +117,24 @@
             <tbody>
                 {#if data && data.items.length > 0}
                     {#each data.items as anime}
-                        <tr id="bck-{anime.id}" class="bg-center bg-no-repeat bg-cover border-none">
+                        <tr
+                            id="bck-{anime.id}"
+                            class="bg-center bg-no-repeat bg-cover border-none"
+                        >
                             <td>
                                 <div class="flex items-center gap-3 max-w-xs">
-                                    <a 
-                                        href="{base}/player/{anime.slug}/1"
+                                    <a
+                                        href="{base}/player/{anime.slug}/{anime.number ?? 1}"
                                         class="avatar"
                                     >
                                         <div
                                             class="mask mask-squircle w-28 h-28"
                                         >
                                             <img
-                                                src="{fallbackImage(anime.imageurl ?? '')}"
-                                                alt="{anime.title_eng}"
+                                                src={fallbackImage(
+                                                    anime.imageurl ?? "",
+                                                )}
+                                                alt={anime.title_eng}
                                             />
                                         </div>
                                     </a>
@@ -129,7 +142,9 @@
                                         <div class="mb-1">
                                             {@html anime.studio}
                                         </div>
-                                        <span class="badge badge-secondary badge-sm">
+                                        <span
+                                            class="badge badge-secondary badge-sm"
+                                        >
                                             {anime.type}
                                         </span>
                                     </div>
@@ -174,8 +189,6 @@
     </div>
 
     <div class="flex justify-center">
-        <button class="btn btn-primary" on:click={loadMore}>
-            Load more
-        </button>
+        <button class="btn btn-primary" on:click={loadMore}> Load more </button>
     </div>
 </div>
