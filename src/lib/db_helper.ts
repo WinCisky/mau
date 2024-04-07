@@ -191,7 +191,7 @@ export async function getTopSeasonalAnime(pb: PocketBase, page: number = 1) {
     // });
 
     // https://dev.opentrust.it/api/mau/classific/seasonal
-    const classificSeasonal = await fetch('https://dev.opentrust.it/api/mau/classific/seasonal');
+    const classificSeasonal = await fetch(`https://dev.opentrust.it/api/mau/classific/seasonal/${page}`);
     return classificSeasonal.json();
 }
 

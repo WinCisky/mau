@@ -153,7 +153,7 @@
         >
             <!-- Sidebar content here -->
             <h2 class="text-lg font-semibold mb-6">History</h2>
-            <div class="flex flex-col justify-center gap-4 pb-10">
+            <div class="flex flex-col justify-center gap-4 pb-10 overflow-y-scroll">
                 <!-- if not logged in -->
                 {#if !pb.authStore.isValid}
                     <a
@@ -179,7 +179,7 @@
                         </figure>
                         <div class="card-body !p-2">
                             <p class="text-lg font-bold flex items-end flex-1">
-                                {item.expand.episode.expand.anime.title_eng
+                                {@html item.expand.episode.expand.anime.title_eng
                                     .length > 25
                                     ? `${item.expand.episode.expand.anime.title_eng.slice(
                                           0,
