@@ -13,7 +13,6 @@
 
     let searchText = "";
     let searchResults: Anime[] = [];
-    let root = import.meta.env.BASE_URL;
 
     $: if (searchText.length >= 3) {
         searchAnime(pb, searchText).then((res) => {
@@ -23,24 +22,15 @@
         searchResults = [];
     }
 
+    $: myBase = base.endsWith("/") ? base : `${base}/`;
+
     let settings = {} as Record<string, boolean>;
 
     onMount(async () => {
-        if (root !== base) {
-            logBug(pb, "base url mismatch", window.location.href, {
-                base,
-                root,
-            });
-        }
         if (base !== "/" && base !== "/mau") {
             logBug(pb, "base url is not root", window.location.href, {
                 base,
-                root,
             });
-        }
-        
-        if (!root.endsWith("/")) {
-            root = `${root}/`;
         }
         
         getUserSettings(pb).then((res) => {
@@ -76,7 +66,7 @@
         />
         <div class="navbar bg-base-300">
             <div class="flex-1">
-                <a class="btn btn-ghost normal-case text-xl" href="{root}"
+                <a class="btn btn-ghost normal-case text-xl" href="{myBase}"
                     >Mau</a
                 >
             </div>
