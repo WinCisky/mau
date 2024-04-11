@@ -26,19 +26,21 @@
     let settings = {} as Record<string, boolean>;
 
     onMount(async () => {
-
-        let myBase = import.meta.env.BASE_URL;
-        if (myBase !== base) {
+        if (root !== base) {
             logBug(pb, "base url mismatch", window.location.href, {
                 base,
-                myBase,
+                root,
             });
         }
         if (base !== "/" && base !== "/mau") {
             logBug(pb, "base url is not root", window.location.href, {
                 base,
-                myBase,
+                root,
             });
+        }
+        
+        if (!root.endsWith("/")) {
+            root = `${root}/`;
         }
         
         getUserSettings(pb).then((res) => {
@@ -74,7 +76,7 @@
         />
         <div class="navbar bg-base-300">
             <div class="flex-1">
-                <a class="btn btn-ghost normal-case text-xl" href="{root}/"
+                <a class="btn btn-ghost normal-case text-xl" href="{root}"
                     >Mau</a
                 >
             </div>
