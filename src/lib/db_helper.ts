@@ -209,6 +209,14 @@ export async function getAnimeEpisodesCount(pb: PocketBase, anime_id: number) {
     return totalItems;
 }
 
+export async function logBug(pb: PocketBase, desc: string, url: string, data: {}) {
+    await pb.collection('mau_bugs').create({
+        desc: desc,
+        url: url,
+        data: data,
+    });
+}
+
 interface UserSettings {
     user: string;
     ona: boolean;

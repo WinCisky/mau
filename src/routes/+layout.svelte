@@ -3,7 +3,7 @@
     import { base } from "$app/paths";
     import { onMount } from "svelte";
     import type { Anime } from "$lib/db_helper";
-    import { getUserSettings, searchAnime } from "$lib/db_helper";
+    import { getUserSettings, logBug, searchAnime } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
     import "../app.css";
     import { selectedTheme, watched, history } from "../stores";
@@ -13,6 +13,7 @@
 
     let searchText = "";
     let searchResults: Anime[] = [];
+    let root = import.meta.env.BASE_URL;
 
     $: if (searchText.length >= 3) {
         searchAnime(pb, searchText).then((res) => {
@@ -25,6 +26,21 @@
     let settings = {} as Record<string, boolean>;
 
     onMount(async () => {
+
+        let myBase = import.meta.env.BASE_URL;
+        if (myBase !== base) {
+            logBug(pb, "base url mismatch", window.location.href, {
+                base,
+                myBase,
+            });
+        }
+        if (base !== "/" && base !== "/mau") {
+            logBug(pb, "base url is not root", window.location.href, {
+                base,
+                myBase,
+            });
+        }
+        
         getUserSettings(pb).then((res) => {
             if (res && res.theme.length > 0) {
                 $selectedTheme = res.theme;
@@ -58,7 +74,7 @@
         />
         <div class="navbar bg-base-300">
             <div class="flex-1">
-                <a class="btn btn-ghost normal-case text-xl" href={base + "/"}
+                <a class="btn btn-ghost normal-case text-xl" href="{root}/"
                     >Mau</a
                 >
             </div>
