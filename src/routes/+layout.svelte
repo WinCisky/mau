@@ -7,6 +7,9 @@
     import { getUserWatchedVideos } from "$lib/settings_helper";
     import "../app.css";
     import { selectedTheme, watched, history } from "../stores";
+    const dev = process.argv.includes('dev');
+
+    const rootPath = dev ? '/' : process.env.BASE_PATH;
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     const username = pb.authStore.model?.username ?? "anon";
@@ -22,14 +25,14 @@
         searchResults = [];
     }
 
-    $: myBase = base.endsWith("/") ? base : `${base}/`;
+    $: myBase = (rootPath.endsWith("/") ? rootPath : `${rootPath}/`);
 
     let settings = {} as Record<string, boolean>;
 
     onMount(async () => {
         if (base !== "/" && base !== "/mau") {
-            logBug(pb, "base url is not root", window.location.href, {
-                base,
+            logBug(pb, "rootPath url is not root", window.location.href, {
+                rootPath, base, myBase
             });
         }
         
