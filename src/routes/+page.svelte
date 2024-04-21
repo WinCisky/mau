@@ -1,6 +1,6 @@
 <script lang="ts">
     import { base } from "$app/paths";
-    import PocketBase, { ListResult } from "pocketbase";
+    import PocketBase, { type ListResult } from "pocketbase";
     import { onMount } from "svelte";
     import { fallbackImage, getSeasonIndex, smallImage } from "$lib";
     import { watched } from "../stores";

@@ -5,7 +5,7 @@
         getTopPopularAnime,
         getTopSeasonalAnime
     } from "$lib/db_helper";
-    import PocketBase, { ListResult } from "pocketbase";
+    import PocketBase, { type ListResult } from "pocketbase";
     import { base } from "$app/paths";
     import { fallbackImage } from "$lib";
 

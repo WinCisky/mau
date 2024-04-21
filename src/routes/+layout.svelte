@@ -142,7 +142,7 @@
                 >
                     <div class="w-10 rounded-full">
                         <img
-                            alt="Tailwind CSS Navbar component"
+                            alt="User settings"
                             src="https://api.dicebear.com/7.x/notionists/svg?seed={username}"
                         />
                     </div>
