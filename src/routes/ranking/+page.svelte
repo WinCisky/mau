@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import {slide, fly} from 'svelte/transition'
     import {
         getTopAllTimeAnime,
         getTopPopularAnime,
@@ -15,6 +16,7 @@
     let data: ListResult<Record<string, any>> | null = null;
     let page = 1;
     let isLoading = true;
+    let hoveredElementId: number = -1;
 
     async function loadCategory() {
         let newData: ListResult<Record<string, any>> | null = null;
@@ -112,80 +114,48 @@
         >
     </div>
 
-    <div class="overflow-x-auto bg-base-100 rounded-lg max-w-screen-lg">
-        <table class="table">
-            <tbody>
-                {#if data && data.items.length > 0}
-                    {#each data.items as anime}
-                        <tr
-                            id="bck-{anime.id}"
-                            class="bg-center bg-no-repeat bg-cover border-none"
+    <div class="overflow-x-auto rounded-lg flex flex-wrap gap-4 justify-center">
+        {#if data && data.items.length > 0}
+            {#each data.items as anime}
+            <a class="group card w-72 h-96 shadow-xl image-full before:!bg-transparent"
+                on:mouseenter={() => hoveredElementId = anime.id}
+                on:mouseleave={() => hoveredElementId = -1}
+                href="{base}/player/{anime.slug}/{anime.number ?? 1}"
+            >
+                <figure>
+                    <img
+                        class="object-cover w-full"
+                        src={fallbackImage(
+                            anime.imageurl ?? "",
+                        )}
+                        alt={anime.title_eng}
+                    />
+                </figure>
+                {#if hoveredElementId === anime.id}
+                <div class="hidden group-hover:block card-body bg-opacity-90 bg-base-300 h-fit m-4 rounded-md"
+                    in:slide="{{axis: 'y', duration: 400}}"
+                >
+                    <h2 class="card-title">
+                        {@html anime.studio}
+                        <span
+                            class="badge badge-secondary badge-sm"
                         >
-                            <td>
-                                <div class="flex items-center gap-3 max-w-xs">
-                                    <a
-                                        href="{base}/player/{anime.slug}/{anime.number ?? 1}"
-                                        class="avatar"
-                                    >
-                                        <div
-                                            class="mask mask-squircle w-28 h-28"
-                                        >
-                                            <img
-                                                src={fallbackImage(
-                                                    anime.imageurl ?? "",
-                                                )}
-                                                alt={anime.title_eng}
-                                            />
-                                        </div>
-                                    </a>
-                                    <div>
-                                        <div class="mb-1">
-                                            {@html anime.studio}
-                                        </div>
-                                        <span
-                                            class="badge badge-secondary badge-sm"
-                                        >
-                                            {anime.type}
-                                        </span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="font-bold text-lg max-w-sm">
-                                    {@html anime.title_eng}
-                                </div>
-                                <br />
-                                {#if anime.dub == 1}
-                                    <span class="badge badge-accent badge-sm"
-                                        >DUB</span
-                                    >
-                                {/if}
-                            </td>
-                        </tr>
-                    {/each}
-                {:else if isLoading}
-                    {#each [1, 2, 3, 4, 5] as _}
-                        <tr>
-                            <td class="text-center">
-                                <div
-                                    class="skeleton w-28 h-28 rounded-full"
-                                ></div>
-                            </td>
-                            <td class="text-center">
-                                <div class="skeleton h-4 w-12 md:w-44"></div>
-                            </td>
-                            <td class="text-center">
-                                <div class="skeleton h-4 w-12 md:w-44"></div>
-                            </td>
-                        </tr>
-                    {/each}
-                {:else}
-                    <tr>
-                        <td colspan="3" class="text-center">No data</td>
-                    </tr>
+                            {anime.type}
+                        </span>
+                    </h2>
+                    <p>{@html anime.title_eng}</p>
+                    <div class="card-actions justify-end">
+                        {#if anime.dub == 1}
+                            <span class="badge badge-accent badge-sm"
+                                >DUB</span
+                            >
+                        {/if}
+                    </div>
+                </div>
                 {/if}
-            </tbody>
-        </table>
+            </a>
+            {/each}
+        {/if}
     </div>
 
     <div class="flex justify-center">
