@@ -117,11 +117,9 @@
     <div class="overflow-x-auto rounded-lg flex flex-wrap gap-4 justify-center">
         {#if data && data.items.length > 0}
             {#each data.items as anime}
-            <a class="group card w-72 h-96 shadow-xl image-full before:!bg-transparent"
-                on:mouseenter={() => hoveredElementId = anime.id}
-                on:mouseleave={() => hoveredElementId = -1}
+            <a class="card w-40 h-96 md:w-72 md:h-96 bg-base-100 shadow-xl"
                 href="{base}/player/{anime.slug}/{anime.number ?? 1}"
-            >
+            >                
                 <figure>
                     <img
                         class="object-cover w-full"
@@ -131,11 +129,8 @@
                         alt={anime.title_eng}
                     />
                 </figure>
-                {#if hoveredElementId === anime.id}
-                <div class="hidden group-hover:block card-body bg-opacity-90 bg-base-300 h-fit m-4 rounded-md"
-                    in:slide="{{axis: 'y', duration: 400}}"
-                >
-                    <h2 class="card-title">
+                <div class="card-body">
+                    <h2 class="card-title hidden md:inline ">
                         {@html anime.studio}
                         <span
                             class="badge badge-secondary badge-sm"
@@ -152,7 +147,6 @@
                         {/if}
                     </div>
                 </div>
-                {/if}
             </a>
             {/each}
         {/if}
