@@ -117,7 +117,7 @@
     <div class="overflow-x-auto rounded-lg flex flex-wrap gap-4 justify-center">
         {#if data && data.items.length > 0}
             {#each data.items as anime}
-            <a class="card w-40 h-96 md:w-72 md:h-96 bg-base-100 shadow-xl"
+            <a class="card w-36 h-80 md:w-72 md:h-96 bg-base-100 shadow-xl"
                 href="{base}/player/{anime.slug}/{anime.number ?? 1}"
             >                
                 <figure>
@@ -129,7 +129,7 @@
                         alt={anime.title_eng}
                     />
                 </figure>
-                <div class="card-body">
+                <div class="card-body p-4 md:p-8">
                     <h2 class="card-title hidden md:inline ">
                         {@html anime.studio}
                         <span
