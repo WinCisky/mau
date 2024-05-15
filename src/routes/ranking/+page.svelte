@@ -120,7 +120,7 @@
             <a class="card w-36 h-80 md:w-72 md:h-96 bg-base-100 shadow-xl"
                 href="{base}/player/{anime.slug}/{anime.number ?? 1}"
             >                
-                <figure>
+                <figure class="-mb-4">
                     <img
                         class="object-cover w-full"
                         src={fallbackImage(
@@ -129,7 +129,7 @@
                         alt={anime.title_eng}
                     />
                 </figure>
-                <div class="card-body p-4 md:p-8">
+                <div class="indicator card-body p-4 md:p-8 rounded-2xl bg-base-300 w-auto">
                     <h2 class="card-title hidden md:inline ">
                         {@html anime.studio}
                         <span
@@ -139,13 +139,23 @@
                         </span>
                     </h2>
                     <p>{@html anime.title_eng}</p>
-                    <div class="card-actions justify-end">
+                    <div class="hidden md:inline card-actions justify-end">
                         {#if anime.dub == 1}
                             <span class="badge badge-accent badge-sm"
                                 >DUB</span
                             >
                         {/if}
                     </div>
+
+                    <span class="inline md:hidden indicator-item indicator-top indicator-center badge badge-secondary">
+                        {anime.type}
+                    </span>
+
+                    {#if anime.dub == 1}
+                        <span class="inline md:hidden indicator-item indicator-bottom indicator-center badge badge-accent">
+                            DUB
+                        </span>
+                    {/if}
                 </div>
             </a>
             {/each}
