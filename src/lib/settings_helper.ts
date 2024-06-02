@@ -1,5 +1,42 @@
 import type PocketBase from "pocketbase";
 
+// cont var with list of themes as array of string
+export const themes = [
+  "default",
+  "light",
+  "dark",
+  "cupcake",
+  "bumblebee",
+  "emerald",
+  "corporate",
+  "synthwave",
+  "retro",
+  "cyberpunk",
+  "valentine",
+  "halloween",
+  "garden",
+  "forest",
+  "aqua",
+  "lofi",
+  "pastel",
+  "fantasy",
+  "wireframe",
+  "black",
+  "luxury",
+  "dracula",
+  "cmyk",
+  "autumn",
+  "business",
+  "acid",
+  "lemonade",
+  "night",
+  "coffee",
+  "winter",
+  "dim",
+  "nord",
+  "sunset",
+];
+
 function mergeWatchedVideos(
   localWatchedVideos: { [key: string]: number[] },
   remoteWatchedVideos: { [key: string]: number[] },

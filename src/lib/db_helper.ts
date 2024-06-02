@@ -78,7 +78,7 @@ export async function getLatestFollowedEpisodes(pb: PocketBase, page: number = 1
 
     // get followed anime
     const followed_anime = await pb.collection('mau_follows').getList(1, 100, {
-        filter: `user_id='${user_id}'`,
+        filter: `user='${user_id}'`,
     });
 
     const anime = [];

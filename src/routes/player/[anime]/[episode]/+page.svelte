@@ -163,7 +163,7 @@
         // get if anime is followed
         pb.collection("mau_follows")
             .getList(1, 1, {
-                filter: `mal_id = '${ep?.expand.anime.mal_id}' && user_id = '${pb.authStore.model?.id}'`,
+                filter: `anime = '${ep?.expand.anime.id}' && user = '${pb.authStore.model?.id}'`,
             })
             .then((result) => {
                 if (result.items.length > 0) {
@@ -317,7 +317,7 @@
             // get from db
             pb.collection("mau_follows")
                 .getList(1, 1, {
-                    filter: `mal_id = '${anime.mal_id}' && user_id = '${pb.authStore.model?.id}'`,
+                    filter: `anime = '${anime.id}' && user = '${pb.authStore.model?.id}'`,
                 })
                 .then((result) => {
                     if (result.items.length > 0) {
@@ -329,8 +329,8 @@
             isFavorite = true;
             // save to db
             const toCreate = {
-                mal_id: anime.mal_id,
-                user_id: pb.authStore.model?.id,
+                anime: anime.id,
+                user: pb.authStore.model?.id,
                 year: year,
                 season: seasonIndex,
             };

@@ -9,7 +9,9 @@
         setUserSettings,
         setUserTheme,
     } from "$lib/db_helper";
+    import { themes } from "$lib/settings_helper";
     import { selectedTheme } from "../../stores";
+    import AnimeList from "../../components/anime-list.svelte";
     // import "@weblogin/trendchart-elements";
 
     interface Provider {
@@ -17,41 +19,6 @@
     }
 
     const pb = new PocketBase("https://dev.opentrust.it/");
-    const themes = [
-        "default",
-        "light",
-        "dark",
-        "cupcake",
-        "bumblebee",
-        "emerald",
-        "corporate",
-        "synthwave",
-        "retro",
-        "cyberpunk",
-        "valentine",
-        "halloween",
-        "garden",
-        "forest",
-        "aqua",
-        "lofi",
-        "pastel",
-        "fantasy",
-        "wireframe",
-        "black",
-        "luxury",
-        "dracula",
-        "cmyk",
-        "autumn",
-        "business",
-        "acid",
-        "lemonade",
-        "night",
-        "coffee",
-        "winter",
-        "dim",
-        "nord",
-        "sunset",
-    ];
 
     let username = pb.authStore.model?.username ?? "anon";
     let chillImg = "/chill.png";
@@ -63,6 +30,9 @@
     let mirror = true;
     let nsfw = false;
     let settings = new UserSettingsDefaults();
+
+    let followedAnime = [] as any[];
+    let loadMore = () => {};
 
     // save theme on change
     $: if (selectedTheme) {
@@ -100,7 +70,7 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
         isLogged = pb.authStore.isValid;
         if (isLogged) {
             let createdDate = new Date(pb.authStore.model!.created);
@@ -122,6 +92,17 @@
                 settingsInitialized = true;
             }, 1000);
         });
+
+        // get followed anime by user
+        const filter = `user = '${pb.authStore.model?.id}'`;
+        
+        const followedAnimeResult = await pb
+            .collection("mau_follows")
+            .getFullList({
+                filter: filter,
+                expand: "anime",
+            });
+        followedAnime = followedAnimeResult;
     });
 
     async function providerLogin(provider: Provider) {
@@ -148,79 +129,54 @@
 {#if isLogged}
     <div class="flex flex-col w-full justify-center items-center gap-6">
         <div
-            class="flex flex-col w-full gap-6 max-w-xl justify-center items-center"
+            class="grid card bg-base-300 rounded-box place-items-center justify-start p-4 items-start"
         >
-            <div
-                class="grid flex-grow card bg-base-300 rounded-box place-items-center justify-start p-6 items-start w-full md:w-auto"
-            >
-                <div class="flex flex-col gap-6">
-                    <h2 class="text-xl font-semibold">User profile</h2>
-                    <div class="flex flex-col md:flex-row gap-10">
-                        <div class="avatar md:justify-center items-center">
-                            <div class="w-20 h-20 rounded-full">
-                                <img
-                                    src="https://api.dicebear.com/7.x/notionists/svg?seed={username}"
-                                    alt="avatar"
-                                />
-                            </div>
-                        </div>
-                        <div class="flex flex-col justify-center gap">
-                            <div class="text-lg font-semibold">{username}</div>
-                            <div>{pb.authStore.model?.email}</div>
-                            <div class="text-sm">joined in {joinedYear}</div>
-                        </div>
-                        <div class="flex md:justify-center items-center">
+            <div class="flex flex-col gap-6">
+                <h2 class="text-xl font-semibold">Hello, {username}</h2>
+                <div class="stats stats-vertical lg:stats-horizontal shadow">
+                    <div class="stat">
+                        <div class="flex justify-center items-center">
                             <button class="btn btn-warning" on:click={logout}
                                 >Logout</button
                             >
                         </div>
                     </div>
-                </div>
-            </div>
-            <div
-                class="grid flex-grow card bg-base-300 rounded-box place-items-center justify-start p-6 items-start w-full md:w-auto"
-            >
-                <div class="flex flex-col gap-6">
-                    <h2 class="text-xl font-semibold">Preferences</h2>
-                    <div class="flex flex-col gap-4">
-                        <div class="form-control w-52">
-                            <div class="flex gap-4 justify-between">
-                                <p>DUB</p>
-                                <input
-                                    type="checkbox"
-                                    class="toggle toggle-accent"
-                                    bind:checked={dub}
-                                />
-                            </div>
+
+                    <div class="stat">
+                        <div class="flex p-2 gap-4">
+                            <p>DUB</p>
+                            <input
+                                type="checkbox"
+                                class="toggle toggle-accent"
+                                bind:checked={dub}
+                            />
                         </div>
-                        <div class="form-control w-52">
-                            <div class="flex gap-4 justify-between">
-                                <p>ONA</p>
-                                <input
-                                    type="checkbox"
-                                    class="toggle toggle-secondary"
-                                    bind:checked={ona}
-                                />
-                            </div>
+
+                        <div class="flex p-2 gap-4">
+                            <p>ONA</p>
+                            <input
+                                type="checkbox"
+                                class="toggle toggle-secondary"
+                                bind:checked={ona}
+                            />
                         </div>
-                        <!-- nsfw -->
-                        <div class="form-control w-52">
-                            <div class="flex gap-4 justify-between">
-                                <p>NSFW</p>
-                                <input
-                                    type="checkbox"
-                                    class="toggle toggle-danger"
-                                    bind:checked={nsfw}
-                                />
-                            </div>
+
+                        <div class="flex p-2 gap-4">
+                            <p>NSFW</p>
+                            <input
+                                type="checkbox"
+                                class="toggle toggle-danger"
+                                bind:checked={nsfw}
+                            />
                         </div>
-                        <div>
-                            <label class="label" for="theme-select">Theme</label
-                            >
+                    </div>
+
+                    <div class="stat">
+                        <div class="flex justify-center items-center p-2 gap-4">
                             <select
                                 bind:value={$selectedTheme}
                                 id="theme-select"
-                                class="select w-full max-w-xs"
+                                class="select w-full max-w-xs bg-base-300"
                             >
                                 {#each themes as theme (theme)}
                                     <option value={theme}
@@ -233,37 +189,20 @@
                 </div>
             </div>
         </div>
-        {#if false}
-            <div class="divider"></div>
-            <div
-                class="grid card bg-base-300 rounded-box place-items-center justify-start p-4 items-start"
-            >
-                <div class="flex flex-col gap-6">
-                    <h2 class="text-xl font-semibold">Stats</h2>
-                    <div
-                        class="stats stats-vertical lg:stats-horizontal shadow"
-                    >
-                        <div class="stat">
-                            <div class="stat-title">Downloads</div>
-                            <div class="stat-value">31K</div>
-                            <div class="stat-desc">Jan 1st - Feb 1st</div>
-                        </div>
 
-                        <div class="stat">
-                            <div class="stat-title">New Users</div>
-                            <div class="stat-value">4,200</div>
-                            <div class="stat-desc">↗︎ 400 (22%)</div>
-                        </div>
+        <div
+            class="grid card bg-base-300 rounded-box place-items-center justify-start p-4 items-start"
+        >
+        
+            {#if followedAnime.length === 0}
+                <h2 class="text-xl font-semibold">
+                    You favourite anime will show up here
+                </h2>
+            {:else}
+                <AnimeList episodes={followedAnime} {followedAnime} {loadMore} />
+            {/if}
 
-                        <div class="stat">
-                            <div class="stat-title">New Registers</div>
-                            <div class="stat-value">1,200</div>
-                            <div class="stat-desc">↘︎ 90 (14%)</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {/if}
+        </div>
     </div>
 {:else}
     <div class="flex flex-col w-full">
