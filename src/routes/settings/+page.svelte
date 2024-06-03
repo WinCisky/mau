@@ -13,6 +13,8 @@
     import { selectedTheme } from "../../stores";
     import AnimeList from "../../components/anime-list.svelte";
     // import "@weblogin/trendchart-elements";
+    import hearth from "$lib/assets/icons/hearth.svg?raw";
+    import gear from "$lib/assets/icons/gear.svg?raw";
 
     interface Provider {
         name: "google" | "github";
@@ -95,7 +97,7 @@
 
         // get followed anime by user
         const filter = `user = '${pb.authStore.model?.id}'`;
-        
+
         const followedAnimeResult = await pb
             .collection("mau_follows")
             .getFullList({
@@ -127,12 +129,21 @@
 </svelte:head>
 
 {#if isLogged}
-    <div class="flex flex-col w-full justify-center items-center gap-6">
-        <div
-            class="grid card bg-base-300 rounded-box place-items-center justify-start p-4 items-start"
-        >
+    <div class="flex flex-col w-full justify-center items-center gap-2">
+        <div class="text-sm breadcrumbs bg-base-200 p-2 rounded-lg md:mt-4">
+            <ul>
+                <li>
+                    <span class="inline-flex gap-2 items-center">
+                        <svg class="w-6 h-6 stroke-base-content fill-none">
+                            {@html gear}
+                        </svg>
+                        Settings
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="grid card place-items-center justify-start p-4 items-start">
             <div class="flex flex-col gap-6">
-                <h2 class="text-xl font-semibold">Hello, {username}</h2>
                 <div class="stats stats-vertical lg:stats-horizontal shadow">
                     <div class="stat">
                         <div class="flex justify-center items-center">
@@ -176,7 +187,7 @@
                             <select
                                 bind:value={$selectedTheme}
                                 id="theme-select"
-                                class="select w-full max-w-xs bg-base-300"
+                                class="select w-full max-w-xs bg-base-200"
                             >
                                 {#each themes as theme (theme)}
                                     <option value={theme}
@@ -189,20 +200,25 @@
                 </div>
             </div>
         </div>
-
-        <div
-            class="grid card bg-base-300 rounded-box place-items-center justify-start p-4 items-start"
-        >
-        
-            {#if followedAnime.length === 0}
-                <h2 class="text-xl font-semibold">
-                    You favourite anime will show up here
-                </h2>
-            {:else}
-                <AnimeList episodes={followedAnime} {followedAnime} {loadMore} />
-            {/if}
-
+        <div class="text-sm breadcrumbs bg-base-200 p-2 rounded-lg mt-6 mb-4 md:mb-0">
+            <ul>
+                <li>
+                    <span class="inline-flex gap-2 items-center">
+                        <svg class="w-6 h-6 stroke-base-content fill-none">
+                            {@html hearth}
+                        </svg>
+                        Favorites
+                    </span>
+                </li>
+            </ul>
         </div>
+        {#if followedAnime.length === 0}
+            <h2 class="text-xl font-semibold">
+                You favourite anime will show up here
+            </h2>
+        {:else}
+            <AnimeList episodes={followedAnime} {followedAnime} {loadMore} />
+        {/if}
     </div>
 {:else}
     <div class="flex flex-col w-full">

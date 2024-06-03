@@ -157,11 +157,11 @@
     <div class="drawer-side z-10">
         <label for="my-drawer" class="drawer-overlay" aria-label="Drawer" />
         <div
-            class="menu p-4 w-80 h-full bg-base-200 text-base-content overflow-hidden flex-nowrap"
+            class="menu p-4 w-80 h-full bg-base-200 text-base-content overflow-hidden flex-nowrap overflow-y-scroll"
         >
             <!-- Sidebar content here -->
             <h2 class="text-lg font-semibold mb-6">History</h2>
-            <div class="flex flex-col justify-center gap-4 pb-10 overflow-y-scroll">
+            <div class="flex flex-col justify-center gap-4">
                 <!-- if not logged in -->
                 {#if !pb.authStore.isValid}
                     <a

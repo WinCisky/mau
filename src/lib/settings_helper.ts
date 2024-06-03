@@ -81,7 +81,7 @@ export async function updateUserSettings(pb: PocketBase) {
 
 export async function getUserWatchedVideos(pb: PocketBase, page: number = 1) {
   if (!pb.authStore.isValid) return [];
-  const watched = await pb.collection("mau_history").getList(page, 8, {
+  const watched = await pb.collection("mau_history").getList(page, 12, {
     filter: `user = '${pb.authStore.model?.id}' && created > '${new Date(
       new Date().getTime() - 1000 * 60 * 60 * 24 * 30, // 30 days
     ).toISOString()}'`,
