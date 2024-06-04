@@ -17,7 +17,7 @@
             <div class="indicator h-52 md:h-80">
                 {#if episode.number}
                     <span
-                        class="indicator-item indicator-start badge badge-neutral"
+                        class="indicator-item indicator-start badge badge-neutral font-semibold items-baseline"
                     >
                         {episode.number}
                         {#if episode.expand.anime.episodes_count != 0}
@@ -41,7 +41,7 @@
                 {/if}
                 {#if episode.expand.anime.score}
                     <span
-                        class="indicator-item hidden md:inline indicator-bottom badge badge-info"
+                        class="indicator-item hidden md:inline indicator-bottom badge badge-info font-semibold"
                     >
                         {episode.expand.anime.score}
                     </span>

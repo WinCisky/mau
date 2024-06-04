@@ -224,7 +224,6 @@
                         class="mt-6 h-[60vh] md:max-w-[80vw] md:min-w-[40vw] flex flex-wrap justify-center gap-4 md:gap-8 pb-10 overflow-y-auto"
                     >
                         {#each searchResults as result}
-                            <!-- TODO: fix url with proper anime link -->
                             <a
                                 class="card w-36 md:w-52 max-h-72 bg-base-100 shadow-xl image-full"
                                 href={`${base}/player/${result.slug}/1`}
@@ -239,7 +238,7 @@
                                 </figure>
                                 <div class="card-body w-36 md:w-52">
                                     <h2 class="card-title">
-                                        {result.title_eng}
+                                        {@html result.title_eng}
                                     </h2>
                                 </div>
                             </a>
