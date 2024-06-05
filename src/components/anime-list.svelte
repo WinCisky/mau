@@ -46,7 +46,7 @@
                         {episode.expand.anime.score}
                     </span>
                     <span
-                        class="indicator-item md:hidden indicator-bottom badge badge-info"
+                        class="indicator-item md:hidden indicator-bottom badge badge-info font-semibold items-baseline"
                     >
                         {parseInt(episode.expand.anime.score)}
                     </span>

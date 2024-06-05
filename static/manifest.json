@@ -4,7 +4,7 @@
     "start_url": "/mau/",
     "icons": [
         {
-            "src": "/mau/favicon.png",
+            "src": "/favicon.png",
             "sizes": "512x512",
             "type": "image/png"
         }
