@@ -56,6 +56,8 @@
 
     let animeRelated = [] as any[];
 
+    let watchedEpisodes = [] as any[];
+
     $: timeSegments =
         videoSegments.length > 0
             ? videoSegments.map((segment) => {
@@ -206,6 +208,17 @@
                 if (result.length > 0)
                     animeRelated = result[0].expand.seasons as any[];
             });
+
+        // get watched episodes
+        pb.collection("mau_history")
+            .getList(1, 100, {
+                filter: `user = '${pb.authStore.model?.id}' && episode.anime = '${ep?.expand.anime.id}'`
+            })
+            .then((result) => {
+                watchedEpisodes = result.items;
+            console.log(watchedEpisodes);
+            });
+
     });
 
     async function playVideoChromecast() {
@@ -430,9 +443,21 @@
             {#each Array(ep?.expand.anime.episodes_count) as _, i}
                 {#if sortedEpisodes.find((e) => e.number == i + 1)}
                     <a
-                        class="join-item btn w-12 {i + 1 === ep.number
-                            ? 'btn-primary'
-                            : ''}"
+                        class="join-item btn w-12 
+                            {
+                                i + 1 === ep.number
+                                ? 'btn-primary'
+                                : ''
+                            } 
+                            {
+                                watchedEpisodes.some(
+                                    watchedEpisode => watchedEpisode.episode === (
+                                        sortedEpisodes.find((e) => e.number == i + 1) ?? {}
+                                    ).id
+                                ) 
+                                ? 'opacity-60' 
+                                : ''
+                            }"
                         href={`${base}/player/${anime}/${i + 1}`}
                         target="_self"
                     >
@@ -447,9 +472,21 @@
         {:else}
             {#each sortedEpisodes as episode, i}
                 <a
-                    class="join-item btn w-12 {episode.number === ep?.number
-                        ? 'btn-primary'
-                        : ''}"
+                    class="join-item btn w-12 
+                        {
+                            episode.number === ep?.number
+                            ? 'btn-primary'
+                            : ''
+                        }
+                        {
+                            watchedEpisodes.some(
+                                watchedEpisode => watchedEpisode.episode === (
+                                    sortedEpisodes.find((e) => e.number == i + 1) ?? {}
+                                ).id
+                            ) 
+                            ? 'opacity-60' 
+                            : ''
+                        }"
                     href={`${base}/player/${anime}/${i + 1}`}
                     target="_self"
                 >
