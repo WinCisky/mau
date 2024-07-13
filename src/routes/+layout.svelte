@@ -10,6 +10,7 @@
 
     const pb = new PocketBase("https://dev.opentrust.it/");
     const username = pb.authStore.model?.username ?? "anon";
+    const isLogged = pb.authStore.isValid;
 
     let searchText = "";
     let searchResults: Anime[] = [];
@@ -121,6 +122,7 @@
                     >
                 </button>
             </div>
+            {#if isLogged}
             <div class="flex-none mr-2">
                 <label for="my-drawer" class="btn btn-ghost btn-circle">
                     <svg
@@ -135,6 +137,7 @@
                     >
                 </label>
             </div>
+            {/if}
             <div class="dropdown dropdown-end">
                 <a
                     href="{base}/settings"

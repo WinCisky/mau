@@ -632,7 +632,7 @@
                             href="{base}/player/{anime.slug}/1"
                         >
                             <img
-                                src={anime.imageurl}
+                                src={fallbackImage(anime.imageurl)} 
                                 alt={anime.title}
                                 class="max-w-xs max-h-80 rounded-xl w-full h-full object-cover"
                             />
