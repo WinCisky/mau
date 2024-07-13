@@ -114,7 +114,7 @@
         >
     </div>
 
-    <div class="overflow-x-auto rounded-lg flex flex-wrap gap-4 justify-center">
+    <div class="overflow-x-auto rounded-lg flex flex-wrap gap-4 justify-center mb-10 gap-8">
         {#if data && data.items.length > 0}
             {#each data.items as anime}
             <a class="card w-36 h-80 md:w-72 md:h-96 bg-base-100 shadow-xl"
@@ -160,9 +160,11 @@
             </a>
             {/each}
         {/if}
-    </div>
 
-    <div class="flex justify-center">
-        <button class="btn btn-primary" on:click={loadMore}> Load more </button>
+        <span class="w-full">
+
+        <div class="flex justify-center">
+            <button class="btn btn-primary" on:click={loadMore}> Load more </button>
+        </div>
     </div>
 </div>

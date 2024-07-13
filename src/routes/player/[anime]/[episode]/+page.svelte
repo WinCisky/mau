@@ -195,7 +195,7 @@
         //         });
 
         // get related anime
-        let filter = `seasons.mal_id ?= '${ep?.expand.anime.mal_id}'`;
+        let filter = `seasons.id ?= '${ep?.anime}'`;
         if (!showDub) {
             filter += ` && seasons.dub = 0`;
         }
@@ -205,8 +205,9 @@
                 expand: "seasons",
             })
             .then((result) => {
-                if (result.length > 0)
+                if (result.length > 0 && result[0].expand) {
                     animeRelated = result[0].expand.seasons as any[];
+                }
             });
 
         // get watched episodes
