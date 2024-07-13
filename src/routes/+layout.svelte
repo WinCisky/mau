@@ -27,11 +27,11 @@
     let settings = {} as Record<string, boolean>;
 
     onMount(async () => {
-        if (base !== "/" && base !== "/mau") {
-            logBug(pb, "rootPath url is not root", window.location.href, {
-                base, myBase
-            });
-        }
+        // if (base !== "/" && base !== "/mau") {
+        //     logBug(pb, "rootPath url is not root", window.location.href, {
+        //         base, myBase
+        //     });
+        // }
         
         getUserSettings(pb).then((res) => {
             if (res && res.theme.length > 0) {
