@@ -67,7 +67,7 @@
         />
         <div class="h-dvh w-screen fixed z-10 pointer-events-none">
             <div
-                class="bg-base-300 z-50 absolute right-4 bottom-4 flex rounded-md p-2 pointer-events-auto left-4 sm:left-auto"
+                class="bg-base-300 z-50 absolute right-4 md:right-8 bottom-4 flex rounded-md p-2 pointer-events-auto left-4 sm:left-auto border-2 border-base-content"
             >
                 <div class="flex-1 hidden md:block">
                     <a class="btn btn-ghost normal-case text-xl" href={myBase}
