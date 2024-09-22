@@ -23,7 +23,7 @@
         searchResults = [];
     }
 
-    $: myBase = base ? (base.endsWith("/") ? base : `${base}/`) : '/';
+    $: myBase = base ? (base.endsWith("/") ? base : `${base}/`) : "/";
 
     let settings = {} as Record<string, boolean>;
 
@@ -33,7 +33,7 @@
         //         base, myBase
         //     });
         // }
-        
+
         getUserSettings(pb).then((res) => {
             if (res && res.theme.length > 0) {
                 $selectedTheme = res.theme;
@@ -57,7 +57,7 @@
 
 <div class="drawer">
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content circle-background">
+    <div class="drawer-content circle-background mb-12">
         <!-- Page content here -->
         <input
             type="checkbox"
@@ -65,95 +65,120 @@
             checked
             class="hidden checkbox theme-controller"
         />
-        <div class="navbar bg-base-300">
-            <div class="flex-1">
-                <a class="btn btn-ghost normal-case text-xl" href="{myBase}"
-                    >Mau</a
-                >
-            </div>
-            <div class="flex-none mr-2">
-                <a
-                    class="btn btn-ghost btn-circle"
-                    href="{base}/ranking"
-                    aria-label="Ranking"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-6 h-6"
+        <div class="h-screen w-screen fixed z-10 pointer-events-none">
+            <div
+                class="bg-base-300 z-50 absolute right-4 bottom-4 flex rounded-md p-2 pointer-events-auto left-4 sm:left-auto"
+            >
+                <div class="flex-1 hidden md:block">
+                    <a class="btn btn-ghost normal-case text-xl" href={myBase}
+                        >Mau</a
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
-                        />
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
-                        />
-                    </svg>
-                </a>
-                <button
-                    class="btn btn-ghost btn-circle"
-                    aria-label="Search"
-                    on:click={() => {
-                        // @ts-ignore
-                        document.getElementById("my_modal_search").showModal();
-                        searchText = "";
-                        searchResults = [];
-                    }}
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        /></svg
+                </div>
+                <div class="flex-1">
+                    <a
+                        class="btn btn-ghost btn-circle md:hidden"
+                        href="{myBase}"
                     >
-                </button>
-            </div>
-            {#if isLogged}
-            <div class="flex-none mr-2">
-                <label for="my-drawer" class="btn btn-ghost btn-circle">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="24"
-                        viewBox="0 -960 960 960"
-                        width="24"
-                        ><path
-                            fill="currentColor"
-                            d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"
-                        /></svg
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="size-6"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                            />
+                        </svg>
+                    </a>
+                </div>
+                <div class="flex-none mr-2">
+                    <a
+                        class="btn btn-ghost btn-circle"
+                        href="{base}/ranking"
+                        aria-label="Ranking"
                     >
-                </label>
-            </div>
-            {/if}
-            <div class="dropdown dropdown-end">
-                <a
-                    href="{base}/settings"
-                    class="btn btn-ghost btn-circle avatar"
-                >
-                    <div class="w-10 rounded-full">
-                        <img
-                            alt="User settings"
-                            src="https://api.dicebear.com/7.x/notionists/svg?seed={username}"
-                        />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-6 h-6"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                            />
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
+                            />
+                        </svg>
+                    </a>
+                    <button
+                        class="btn btn-ghost btn-circle"
+                        aria-label="Search"
+                        on:click={() => {
+                            // @ts-ignore
+                            document.getElementById("my_modal_search").showModal();
+                            searchText = "";
+                            searchResults = [];
+                        }}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            /></svg
+                        >
+                    </button>
+                </div>
+                {#if isLogged}
+                    <div class="flex-none mr-2">
+                        <label for="my-drawer" class="btn btn-ghost btn-circle">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                height="24"
+                                viewBox="0 -960 960 960"
+                                width="24"
+                                ><path
+                                    fill="currentColor"
+                                    d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"
+                                /></svg
+                            >
+                        </label>
                     </div>
-                </a>
+                {/if}
+                <div class="dropdown dropdown-end">
+                    <a
+                        href="{base}/settings"
+                        class="btn btn-ghost btn-circle avatar"
+                    >
+                        <div class="w-10 rounded-full">
+                            <img
+                                alt="User settings"
+                                src="https://api.dicebear.com/7.x/notionists/svg?seed={username}"
+                            />
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
 
-        <div class="container mx-auto mt-6 p-4 md:p-2 min-h-[calc(100vh-66px)]">
+        <div class="container mx-auto mt-2 md:mt-4 p-4 md:p-2 min-h-[calc(100vh-66px)]">
             <slot />
         </div>
     </div>
@@ -190,8 +215,8 @@
                         </figure>
                         <div class="card-body !p-2">
                             <p class="text-lg font-bold flex items-end flex-1">
-                                {@html item.expand.episode.expand.anime.title_eng
-                                    .length > 25
+                                {@html item.expand.episode.expand.anime
+                                    .title_eng.length > 25
                                     ? `${item.expand.episode.expand.anime.title_eng.slice(
                                           0,
                                           25,
