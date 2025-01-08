@@ -73,15 +73,6 @@
     
     $: shownAnimeRelated = showDub ? animeRelated : animeRelated.filter((a) => !a.dub);
 
-    async function getVideoUrl(id: number) {
-        // const result = await fetch(`https://get-video-link.deno.dev/?v=${id}`);
-        const result = await fetch(
-            `https://mau-backend.deno.dev/api/mirror/${id}`,
-        );
-        const data = await result.json();
-        fallbackVideo = data;
-    }
-
     async function onCastPlayPause() {
         playerController.playOrPause();
         isCastPlaying = !player.isPaused;
@@ -115,14 +106,8 @@
     $: ep = data.episodes.find((e) => e.number == parseInt(episode));
     $: sortedEpisodes = data.episodes.sort((a, b) => a.number - b.number);
 
-    $: video =
-        ep && (ep.link.includes("forbiddenlol") || useMirror)
-            ? fallbackVideo
-            : ep
-              ? ep.link
-              : "";
-    // $: video = "";
     $: videoId = ep ? ep.mau_id : -1;
+    $: video = (videoId && videoId > 0) ? `https://mau-backend.deno.dev/api/mirror/${videoId}` : '';
 
     onMount(() => {
         watchTimer = setInterval(() => {
@@ -157,10 +142,6 @@
                 showDub = settings.dub;
             }
         });
-
-        if (ep?.link.includes("forbiddenlol") || useMirror) {
-            getVideoUrl(videoId);
-        }
 
         // get if anime is followed
         pb.collection("mau_follows")
@@ -226,7 +207,7 @@
         castSession =
             await cast.framework.CastContext.getInstance().getCurrentSession();
 
-        const currentMediaURL = fallbackVideo;
+        const currentMediaURL = video;
         const contentType = "video/mp4";
 
         var mediaInfo = new chrome.cast.media.MediaInfo(
