@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import {slide, fly} from 'svelte/transition'
+    import { onMount, afterUpdate } from "svelte";
     import {
         getTopAllTimeAnime,
         getTopPopularAnime,
@@ -17,8 +16,10 @@
     let page = 1;
     let isLoading = true;
     let hoveredElementId: number = -1;
+    let observer: IntersectionObserver | null = null;
 
     async function loadCategory() {
+        let hasMore = false;
         let newData: ListResult<Record<string, any>> | null = null;
         switch (activeTab) {
             case "All time":
@@ -33,6 +34,7 @@
         }
         // merge
         if (newData) {
+            hasMore = newData.items.length > 0;
             if (data) {
                 data.items = [...data.items, ...newData.items];
             } else {
@@ -40,12 +42,21 @@
             }
         }
         isLoading = false;
+        return hasMore;
     }
 
     async function loadMore() {
         page++;
-        await loadCategory();
+        const hasMore = await loadCategory();
         loadBackgroundImages();
+        if (!hasMore) {
+            observer?.disconnect();
+            // hide skeleton
+            const loadMoreSkeleton = document.querySelectorAll('.skeleton');
+            for (const skeleton of loadMoreSkeleton) {
+                (skeleton as HTMLElement).style.display = 'none';
+            }
+        }
     }
 
     async function setTab(tab: string) {
@@ -90,6 +101,21 @@
             }
         }
     }
+
+    afterUpdate(() => {
+        if (observer) observer.disconnect();
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    loadMore();
+                }
+            });
+        });
+        const loadMoreSkeleton = document.getElementById('load-more-skeleton');
+        if (loadMoreSkeleton) {
+            observer.observe(loadMoreSkeleton);
+        }
+    });
 </script>
 
 <div class="flex flex-col items-center gap-8">
@@ -161,10 +187,17 @@
             {/each}
         {/if}
 
-        <span class="w-full">
-
-        <div class="flex justify-center">
-            <button class="btn btn-primary" on:click={loadMore}> Load more </button>
-        </div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96" id='load-more-skeleton'></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
+        <div class="skeleton w-36 h-80 md:w-72 md:h-96"></div>
     </div>
 </div>

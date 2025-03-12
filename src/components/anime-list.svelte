@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { afterUpdate } from "svelte";
     import { base } from "$app/paths";
     import { fallbackImage, smallImage } from "$lib";
     import { watched } from "../stores";
@@ -7,6 +8,22 @@
     export let episodes = [] as Episode[];
     export let followedAnime = [] as any[];
     export let loadMore;
+    
+    let observer: IntersectionObserver | null = null;
+    afterUpdate(() => {
+        if (observer) observer.disconnect();
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    loadMore();
+                }
+            });
+        });
+        const loadMoreSkeleton = document.getElementById('load-more-skeleton');
+        if (loadMoreSkeleton) {
+            observer.observe(loadMoreSkeleton);
+        }
+    });
 
 </script>
 
@@ -75,11 +92,21 @@
                 </a>
             </div>
         {/each}
-        <div class="flex justify-center w-full">
-            <button class="btn btn-neutral w-fit" on:click={loadMore}>
-                Load more
-            </button>
-        </div>
+        
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72" id="load-more-skeleton"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
     {:else}
         {#each Array.from({ length: 10 }) as _}
             <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
