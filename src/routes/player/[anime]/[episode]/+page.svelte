@@ -647,8 +647,8 @@
             linear-gradient(transparent, transparent) padding-box,
             linear-gradient(
                     var(--angle),
-                    theme("colors.primary"),
-                    theme("colors.secondary")
+                    var(--color-primary),
+                    var(--color-secondary)
                 )
                 border-box;
         animation: 8s rotate linear infinite;
@@ -665,8 +665,8 @@
             linear-gradient(transparent, transparent) padding-box,
             linear-gradient(
                     var(--angle),
-                    theme("colors.primary"),
-                    theme("colors.secondary")
+                    var(--color-primary),
+                    var(--color-secondary)
                 )
                 border-box;
     }

@@ -8,6 +8,7 @@
     export let episodes = [] as Episode[];
     export let followedAnime = [] as any[];
     export let loadMore;
+    export let withLoadingPlaceholder = true;
     
     let observer: IntersectionObserver | null = null;
     afterUpdate(() => {
@@ -38,9 +39,7 @@
                     >
                         {episode.number}
                         {#if episode.expand.anime.episodes_count != 0}
-                            <span class="hidden md:inline md:pl-1"
-                                >/ {episode.expand.anime.episodes_count}</span
-                            >
+                            / {episode.expand.anime.episodes_count}
                         {/if}
                     </span>
                 {/if}
@@ -93,20 +92,22 @@
             </div>
         {/each}
         
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72" id="load-more-skeleton"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        {#if withLoadingPlaceholder}
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72" id="load-more-skeleton"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        {/if}
     {:else}
         {#each Array.from({ length: 10 }) as _}
             <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
@@ -117,7 +118,7 @@
 <style>
     .gradient-border {
         background: linear-gradient(transparent, transparent) padding-box,
-            linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
+            linear-gradient(var(--angle), var(--color-primary), var(--color-secondary)) border-box;
         animation: 8s rotate linear infinite;
         border: 3px solid #0000;
     }
@@ -129,7 +130,7 @@
         inset: 0;
         z-index: -1;
         background: linear-gradient(transparent, transparent) padding-box,
-            linear-gradient(var(--angle), theme('colors.primary'), theme('colors.secondary')) border-box;
+            linear-gradient(var(--angle), var(--color-primary), var(--color-secondary)) border-box;
     }
 
     @keyframes rotate {

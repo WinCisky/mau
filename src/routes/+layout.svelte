@@ -1,11 +1,11 @@
 <script lang="ts">
+    import "../app.css";
     import PocketBase from "pocketbase";
     import { base } from "$app/paths";
     import { onMount } from "svelte";
     import type { Anime } from "$lib/db_helper";
     import { getUserSettings, logBug, searchAnime } from "$lib/db_helper";
     import { getUserWatchedVideos } from "$lib/settings_helper";
-    import "../app.css";
     import { selectedTheme, watched, history } from "../stores";
 
     const pb = new PocketBase("https://dev.opentrust.it/");
@@ -44,6 +44,9 @@
         });
 
         if (pb.authStore.isValid) {
+            // refresh auth token
+            await pb.collection("users").authRefresh();
+
             $history = await getUserWatchedVideos(pb);
 
             const episodesWatched = [];
@@ -61,7 +64,6 @@
         <!-- Page content here -->
         <input
             type="checkbox"
-            bind:value={$selectedTheme}
             checked
             class="hidden checkbox theme-controller"
         />
@@ -75,10 +77,7 @@
                     >
                 </div>
                 <div class="flex-1">
-                    <a
-                        class="btn btn-ghost btn-circle md:hidden"
-                        href="{myBase}"
-                    >
+                    <a class="btn btn-ghost btn-circle md:hidden" href={myBase}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -126,7 +125,9 @@
                         aria-label="Search"
                         on:click={() => {
                             // @ts-ignore
-                            document.getElementById("my_modal_search").showModal();
+                            document
+                                .getElementById("my_modal_search")
+                                .showModal();
                             searchText = "";
                             searchResults = [];
                         }}
@@ -178,7 +179,9 @@
             </div>
         </div>
 
-        <div class="container mx-auto mt-2 md:mt-4 p-4 md:p-2 min-h-[calc(100vh-66px)]">
+        <div
+            class="container mx-auto mt-2 md:mt-4 p-4 md:p-2 min-h-[calc(100vh-66px)]"
+        >
             <slot />
         </div>
     </div>
@@ -317,8 +320,8 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(
-                theme("colors.primary"),
-                theme("colors.secondary")
+                var(--color-primary),
+                var(--color-secondary)
             );
             clip-path: circle(30rem at 5rem 5rem);
             animation: float-right 60s ease-in-out infinite;
@@ -333,8 +336,8 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(
-                theme("colors.secondary"),
-                theme("colors.primary")
+                var(--color-secondary),
+                var(--color-primary)
             );
             clip-path: circle(30rem at right 70rem);
             animation: float-left 60s ease-in-out infinite;

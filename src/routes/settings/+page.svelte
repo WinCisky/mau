@@ -9,7 +9,6 @@
         setUserSettings,
         setUserTheme,
     } from "$lib/db_helper";
-    import { themes } from "$lib/settings_helper";
     import { selectedTheme } from "../../stores";
     import AnimeList from "../../components/anime-list.svelte";
     // import "@weblogin/trendchart-elements";
@@ -144,7 +143,7 @@
         </div>
         <div class="grid card place-items-center justify-start p-4 items-start">
             <div class="flex flex-col gap-6">
-                <div class="stats stats-vertical lg:stats-horizontal shadow">
+                <div class="stats stats-vertical lg:stats-horizontal shadow bg-base-200">
                     <div class="stat">
                         <div class="flex justify-center items-center">
                             <button class="btn btn-warning" on:click={logout}
@@ -181,22 +180,6 @@
                             />
                         </div>
                     </div>
-
-                    <div class="stat">
-                        <div class="flex justify-center items-center p-2 gap-4">
-                            <select
-                                bind:value={$selectedTheme}
-                                id="theme-select"
-                                class="select w-full max-w-xs bg-base-200"
-                            >
-                                {#each themes as theme (theme)}
-                                    <option value={theme}
-                                        >{capitalizeFirstLetter(theme)}</option
-                                    >
-                                {/each}
-                            </select>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -217,7 +200,7 @@
                 You favourite anime will show up here
             </h2>
         {:else}
-            <AnimeList episodes={followedAnime} {followedAnime} {loadMore} />
+            <AnimeList episodes={followedAnime} {followedAnime} {loadMore} withLoadingPlaceholder={false} />
         {/if}
     </div>
 {:else}
