@@ -1,48 +1,49 @@
 <script lang="ts">
     import { base } from "$app/paths";
-    import PocketBase from "pocketbase";
     import { onMount } from "svelte";
-    import { getSeasonIndex } from "$lib";
-    import { getLatestEpisodes } from "$lib/db_helper";
-    import type { Episode } from "$lib/db_helper";
     import AnimeList from "../components/anime-list.svelte";
+    import { type Database } from "$lib/database.types";
 
-    const pb = new PocketBase("https://dev.opentrust.it/");
-    const year = new Date().getFullYear();
-    const seasonIndex = getSeasonIndex();
-    let episodes = [] as Episode[];
+    import { createClient } from "@supabase/supabase-js";
+
+    const supabaseUrl = "https://oowupapsfsiiwawhqhty.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vd3VwYXBzZnNpaXdhd2hxaHR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1MjA5OTYsImV4cCI6MjA2NjA5Njk5Nn0.Lo7Hp1R_r7cYElql9Yy03mR8OaE-H7EEh8CwFA5hIpo";
+
+    export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+
+    type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
+        animes: Database["public"]["Tables"]["animes"]["Row"] | null;
+    };
+    let episodes = [] as EpisodeWithAnime[];
     let followedAnime = [] as any[];
     let page = 1;
+    const perPage = 20;
+
+    function getAnimePage(page: number) {
+        return supabase
+            .from('episodes')
+            .select('*, animes(*)')
+            .range((page - 1) * perPage, page * perPage - 1)
+            .order('created_at', { ascending: false });
+    }
 
     onMount(async () => {
-        getLatestEpisodes(pb).then(async (resultList) => {
-            episodes = resultList.items.map((item) => {
-                return item as unknown as Episode;
-            });
-        });
-
-        let filter = `(year = ${year} && season = ${seasonIndex})`;
-        if (seasonIndex === 0) {
-            filter = `((year = ${year} && season = ${seasonIndex}) || (year = ${year - 1} && season = 3))`;
+        const { data, error } = await getAnimePage(page);
+        if (error) {
+            console.error("Error fetching episodes:", error);
+        } else {
+            episodes = data;
         }
-        filter += ` && user = '${pb.authStore.model?.id}'`;
-        
-        const followedAnimeResult = await pb
-            .collection("mau_follows")
-            .getFullList({
-                filter: filter,
-                expand: "anime"
-            });
-        followedAnime = followedAnimeResult;
     });
 
     function loadMore() {
-        getLatestEpisodes(pb, ++page).then((resultList) => {
-            episodes = episodes.concat(
-                resultList.items.map((item) => {
-                    return item as unknown as Episode;
-                })
-            );
+        page += 1;
+        getAnimePage(page).then(({ data, error }) => {
+            if (error) {
+                console.error("Error fetching more episodes:", error);
+            } else {
+                episodes = [...episodes, ...data];
+            }
         });
     }
 </script>

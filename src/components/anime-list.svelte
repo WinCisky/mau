@@ -2,10 +2,12 @@
     import { afterUpdate } from "svelte";
     import { base } from "$app/paths";
     import { fallbackImage, smallImage } from "$lib";
-    import { watched } from "../stores";
-    import type { Episode } from "$lib/db_helper";
+    import type { Database } from "$lib/database.types";
 
-    export let episodes = [] as Episode[];
+    type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
+        animes: Database["public"]["Tables"]["animes"]["Row"] | null;
+    };
+    export let episodes = [] as EpisodeWithAnime[];
     export let followedAnime = [] as any[];
     export let loadMore;
     export let withLoadingPlaceholder = true;
@@ -33,59 +35,23 @@
     {#if episodes && episodes.length > 0}
         {#each episodes as episode, index}
             <div class="indicator h-52 md:h-80">
-                {#if episode.number}
+                {#if episode.episode_number}
                     <span
                         class="indicator-item indicator-start badge badge-neutral font-semibold items-baseline"
                     >
-                        {episode.number}
-                        {#if episode.expand.anime.episodes_count != 0}
-                            / {episode.expand.anime.episodes_count}
-                        {/if}
-                    </span>
-                {/if}
-                {#if episode.expand.anime.type === "ONA"}
-                <span
-                    class="indicator-item indicator-top indicator-center badge badge-secondary">
-                    ONA
-                </span>
-                {/if}
-                {#if episode.expand.anime.dub}
-                <span
-                    class="indicator-item indicator-bottom indicator-center badge badge-accent">
-                    DUB
-                </span>
-                {/if}
-                {#if episode.expand.anime.score}
-                    <span
-                        class="indicator-item hidden md:inline indicator-bottom badge badge-info font-semibold"
-                    >
-                        {episode.expand.anime.score}
-                    </span>
-                    <span
-                        class="indicator-item md:hidden indicator-bottom badge badge-info font-semibold items-baseline"
-                    >
-                        {parseInt(episode.expand.anime.score)}
+                        {episode.episode_number}
                     </span>
                 {/if}
                 <a
-                    class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl
-                        {$watched && $watched.includes(episode.id)
-                        ? 'opacity-60'
-                        : ''}
-                        {followedAnime.some(
-                        (a) => a.expand.anime.mal_id === episode.expand.anime.mal_id
-                    )
-                        ? 'border-2 gradient-border'
-                        : ''}"
-                    href={`${base}/player/${episode.expand.anime.slug}/${episode.number ?? 1}`}
-                    aria-label={`Watch ${episode.expand.anime.title} episode ${episode.number}`}
+                    class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
+                    href={`${base}/player/${episode.anime_id}/${episode.episode_number ?? 1}`}
+                    aria-label={`Watch ${episode.animes?.name} episode ${episode.episode_number}`}
                 >
                     <!-- add episode number -->
                     <img
                         class="rounded-xl w-full h-full object-cover"
-                        src={fallbackImage(smallImage(episode.expand.anime.imageurl))}
-                        srcset={fallbackImage(episode.expand.anime.imageurl) + " 2x"}
-                        alt={episode.expand.anime.title}
+                        src={episode.animes?.image_url}
+                        alt={episode.animes?.name}
                         loading="{index > 1 ? 'lazy' : 'eager'}"
                     />
                 </a>
