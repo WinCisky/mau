@@ -1,7 +1,6 @@
 <script lang="ts">
     import { afterUpdate } from "svelte";
     import { base } from "$app/paths";
-    import { fallbackImage, smallImage } from "$lib";
     import type { Database } from "$lib/database.types";
 
     type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {

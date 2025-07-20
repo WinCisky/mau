@@ -118,6 +118,33 @@ export type Database = {
           },
         ]
       }
+      seasonal: {
+        Row: {
+          anime_id: number
+          created_at: string | null
+          id: number
+          season: string
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          anime_id: number
+          created_at?: string | null
+          id?: number
+          season: string
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          anime_id?: number
+          created_at?: string | null
+          id?: number
+          season?: string
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
