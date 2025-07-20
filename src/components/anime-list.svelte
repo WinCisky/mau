@@ -42,6 +42,11 @@
                         {episode.episode_number}
                     </span>
                 {/if}
+                {#if episode.animes?.dubbed}
+                    <span
+                        class="indicator-item indicator-bottom indicator-center badge badge-secondary"
+                    >DUB</span>
+                {/if}
                 <a
                     class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
                     href={`${base}/player/${episode.anime_id}/${episode.episode_number ?? 1}`}
@@ -60,25 +65,12 @@
         
         {#if withLoadingPlaceholder}
             <div class="skeleton w-36 h-52 md:w-52 md:h-72" id="load-more-skeleton"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
         {/if}
-    {:else}
-        {#each Array.from({ length: 10 }) as _}
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
-        {/each}
     {/if}
+    {#each Array.from({ length: 10 }) as _}
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+    {/each}
+    
 </div>
 
 <style>

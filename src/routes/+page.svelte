@@ -16,7 +16,7 @@
     function getAnimePage(page: number) {
         return supabase
             .from('episodes')
-            .select('*, animes(*)')
+            .select('*, animes!fk_anime_id(*)')
             .range((page - 1) * perPage, page * perPage - 1)
             .order('created_at', { ascending: false });
     }
