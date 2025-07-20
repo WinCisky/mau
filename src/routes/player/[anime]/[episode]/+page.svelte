@@ -167,13 +167,25 @@
 </div>
 
 <!-- Related -->
-{#if relatedAnime && relatedAnime.length > 0}
+{#if relatedAnime && relatedAnime.length > 1}
+    {#if ep?.animes?.description}
+        <div>
+            <p class="font-medium text-base">
+                {ep?.animes?.description ?? 'No description available.'}
+            </p>
+        </div>
+    {/if}
     <div class="carousel w-full">
         {#each relatedAnime as anime, index}
-            <div
+            <button
+                type="button"
                 id={anime.id.toString()}
                 class="carousel-item indicator h-52 md:h-80 my-8 mx-2 cursor-pointer {anime.id === ep?.animes?.id ? 'gradient-border' : ''}"
+                aria-label={`Select anime ${anime.name}`}
                 on:click={() => changeAnime(anime.id)}
+                on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { changeAnime(anime.id); } }}
+                role="button"
+                tabindex="0"
             >
                 {#if anime.dubbed}
                     <span
@@ -189,7 +201,7 @@
                         loading="eager"
                     />
                 </div>
-            </div>
+            </button>
         {/each}
     </div>
     <div class="flex w-full justify-center gap-2 py-2 flex-wrap">
@@ -198,7 +210,36 @@
         {/each}
     </div>
 {:else}
-    <!-- TODO: only show current anime -->
+    <div class="flex justify-center mt-4 gap-4">
+        <div
+            class="carousel-item indicator h-52 md:h-80 my-8 mx-2 cursor-pointer gradient-border"
+            aria-label={`Select anime ${ep?.animes?.name ?? ''}`}
+            role="button"
+            tabindex="0"
+        >
+            {#if ep?.animes?.dubbed}
+                <span
+                    class="indicator-item indicator-bottom indicator-center badge badge-secondary"
+                    >DUB</span
+                >
+            {/if}
+            <div class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl">
+                <img
+                    class="rounded-xl w-full h-full object-cover"
+                    src={ep?.animes?.image_url}
+                    alt={ep?.animes?.name}
+                    loading="eager"
+                />
+            </div>
+        </div>
+        {#if ep?.animes?.description}
+            <div>
+                <p class="font-medium text-base mx-4 my-8">
+                    {ep?.animes?.description ?? 'No description available.'}
+                </p>
+            </div>
+        {/if}
+    </div>
 {/if}
 
 <style>
