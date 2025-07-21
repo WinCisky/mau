@@ -1,12 +1,13 @@
 <script lang="ts">
     import { base } from "$app/paths";
     import { decodeHTMLEntities } from "$lib";
-    import type { PageData } from "./$types";
     import { page } from "$app/stores";
     import { type Database } from "$lib/database.types";
     import { supabase } from "$lib/db_helper";
     import { onMount } from "svelte";
     const { anime, episode } = $page.params;
+
+    import CastIcon from "$lib/assets/icons/cast.svg?raw";
 
     const backendEndpoint = "https://slim-boar-34.deno.dev";
 
@@ -21,6 +22,9 @@
     let episodes = null as EpisodeWithAnime[] | null;
     let videoUrl = null as string | null;
     let relatedAnime = null as Anime[] | null;
+    let isCastAvailable = false;
+    let castContext: any = null;
+    let videoElement: HTMLVideoElement;
 
     async function getEpisodesWithAnime(
         animeId: number,
@@ -93,6 +97,51 @@
         window.location.href = `${base}/player/${animeId}/1`;
     }
 
+    // Chromecast functions
+    function initializeCast() {
+        if (typeof window !== 'undefined' && (window as any).cast && (window as any).cast.framework) {
+            castContext = (window as any).cast.framework.CastContext.getInstance();
+            castContext.setOptions({
+                receiverApplicationId: (window as any).chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+                autoJoinPolicy: (window as any).chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+            });
+            
+            // Listen for cast state changes
+            castContext.addEventListener(
+                (window as any).cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+                () => {
+                    isCastAvailable = castContext.getCastState() !== (window as any).cast.framework.CastState.NO_DEVICES_AVAILABLE;
+                }
+            );
+        }
+    }
+
+    function castToDevice() {
+        if (!castContext || !videoUrl || !ep) return;
+        
+        const castSession = castContext.getCurrentSession();
+        if (castSession) {
+            const mediaInfo = new (window as any).chrome.cast.media.MediaInfo(videoUrl, 'video/mp4');
+            mediaInfo.metadata = new (window as any).chrome.cast.media.GenericMediaMetadata();
+            mediaInfo.metadata.title = `${ep.animes?.name} - Episode ${ep.episode_number}`;
+            if (ep.animes?.image_url) {
+                mediaInfo.metadata.images = [{ url: ep.animes.image_url }];
+            }
+            
+            const request = new (window as any).chrome.cast.media.LoadRequest(mediaInfo);
+            castSession.loadMedia(request).catch((error: any) => {
+                console.error('Error casting media:', error);
+            });
+        } else {
+            // Request cast session
+            castContext.requestSession().then(() => {
+                castToDevice(); // Retry after session is established
+            }).catch((error: any) => {
+                console.error('Error requesting cast session:', error);
+            });
+        }
+    }
+
     onMount(async () => {
         episodes = await getEpisodesWithAnime(parseInt(anime));
         if (episodes && episodes.length > 0) {
@@ -102,6 +151,27 @@
         }
         videoUrl = await fetchVideoUrl(parseInt(anime), parseInt(episode));
         relatedAnime = await getRelatedAnime(parseInt(anime));
+        
+        // Initialize Chromecast after page loads
+        if (typeof window !== 'undefined') {
+            // Wait for Cast SDK to load
+            (window as any).__onGCastApiAvailable = function(isAvailable: boolean) {
+                if (isAvailable) {
+                    initializeCast();
+                }
+            };
+            
+            // If Cast SDK is already loaded
+            if ((window as any).cast) {
+                initializeCast();
+            }
+        }
+        
+        // Set AirPlay attributes after video element is available
+        if (videoElement) {
+            videoElement.setAttribute('x-webkit-airplay', 'allow');
+            videoElement.setAttribute('webkit-playsinline', 'true');
+        }
     });
 </script>
 
@@ -117,20 +187,34 @@
 </svelte:head>
 
 {#if videoUrl}
-    <video
-        controls
-        src={videoUrl}
-        bind:volume
-        on:volumechange={() => {
-            if (typeof localStorage !== "undefined")
-                localStorage.setItem("volume", volume.toString());
-        }}
-        id="main-video-player"
-        class="mx-auto h-auto max-h-[70vh]
-    border-transparent focus:outline-none rounded-xl"
-    >
-        <track kind="captions" />
-    </video>
+    <div class="relative">
+        <video
+            controls
+            src={videoUrl}
+            bind:volume
+            bind:this={videoElement}
+            on:volumechange={() => {
+                if (typeof localStorage !== "undefined")
+                    localStorage.setItem("volume", volume.toString());
+            }}
+            id="main-video-player"
+            class="mx-auto h-auto max-h-[70vh] border-transparent focus:outline-none rounded-xl"
+            playsinline
+            controlslist="nodownload"
+        >
+            <track kind="captions" />
+        </video>
+        
+        <!-- Cast Button -->
+        {#if isCastAvailable}
+            <button class="btn btn-circle absolute top-4 right-4"
+                on:click={castToDevice}
+                aria-label="Cast to device"
+            >
+                {@html CastIcon}
+            </button>
+        {/if}
+    </div>
 {:else}
     <div class="flex items-center justify-center aspect-video skeleton"></div>
 {/if}
@@ -184,7 +268,6 @@
                 aria-label={`Select anime ${anime.name}`}
                 on:click={() => changeAnime(anime.id)}
                 on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { changeAnime(anime.id); } }}
-                role="button"
                 tabindex="0"
             >
                 {#if anime.dubbed}

@@ -1,7 +1,5 @@
 <script lang="ts">
     import { base } from "$app/paths";
-    import { decodeHTMLEntities, getCurrentSeason } from "$lib";
-    import { page } from "$app/stores";
     import { type Database } from "$lib/database.types";
     import { supabase } from "$lib/db_helper";
     import { onMount, tick } from "svelte";
