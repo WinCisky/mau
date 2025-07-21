@@ -12,8 +12,6 @@
     import SummerIcon from "$lib/assets/icons/summer.svg?raw";
     import FallIcon from "$lib/assets/icons/fall.svg?raw";
 
-    const backendEndpoint = "https://slim-boar-34.deno.dev";
-
     type Anime = Database["public"]["Tables"]["animes"]["Row"];
 
     let anime = null as Anime[] | null;

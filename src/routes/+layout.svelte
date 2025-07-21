@@ -7,6 +7,7 @@
     import SummerIcon from "$lib/assets/icons/summer.svg?raw";
     import FallIcon from "$lib/assets/icons/fall.svg?raw";
     import HomeIcon from "$lib/assets/icons/home.svg?raw";
+    import SearchIcon from "$lib/assets/icons/search.svg?raw";
     import { getCurrentSeason } from "$lib";
 
     const seasonIcons = {
@@ -40,11 +41,17 @@
                     >
                 </div>
                 <div class="flex items-center gap-4">
+                    <!-- home icon -->
                     <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href={myBase} aria-label="Home">
                         {@html HomeIcon}
                     </a>
+                    <!-- seasonal icon -->
                     <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/seasonal" aria-label="Home">
                         {@html seasonIcons[seasonName as keyof typeof seasonIcons]}
+                    </a>
+                    <!-- search icon -->
+                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/search" aria-label="Search">
+                        {@html SearchIcon}
                     </a>
                 </div>
             </div>
