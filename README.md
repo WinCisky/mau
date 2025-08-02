@@ -1,3 +1,8 @@
-# Mau
+<p align="center">
+    <a href="https://wincisky.github.io/stg-email/" target="_blank"><img src="https://raw.githubusercontent.com/WinCisky/mau/refs/heads/main/static/favicon.png" width="250" alt="Mau Logo"></a>
+</p>
 
-![favicon](https://github.com/WinCisky/mau/assets/15329035/6c638df2-f10b-4849-8be9-4dc15e725c65)
+## About mau
+Anime streaming hub built for convenience and simplicity.
+
+<a href="https://github.com/WinCisky/stg-email/actions"><img src="https://img.shields.io/github/actions/workflow/status/WinCisky/stg-email/deploy.yml" alt="Build Status"></a>
