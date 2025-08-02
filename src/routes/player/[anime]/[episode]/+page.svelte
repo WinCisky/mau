@@ -143,13 +143,13 @@
     }
 
     onMount(async () => {
+        videoUrl = await fetchVideoUrl(parseInt(anime), parseInt(episode));
         episodes = await getEpisodesWithAnime(parseInt(anime));
         if (episodes && episodes.length > 0) {
             ep =
                 episodes.find((e) => e.episode_number === parseInt(episode)) ||
                 null;
         }
-        videoUrl = await fetchVideoUrl(parseInt(anime), parseInt(episode));
         relatedAnime = await getRelatedAnime(parseInt(anime));
         
         // Initialize Chromecast after page loads
@@ -228,7 +228,7 @@
     <h1 class="text-2xl md:text-3xl font-bold text-center mt-4">Loading...</h1>
 {/if}
 
-<div class="join flex justify-center mt-4 mb-8">
+<div class="join flex justify-center mt-4 mb-8 flex-wrap">
     {#if episodes && episodes.length > 0}
         {#each episodes as episode, index}
             <input
@@ -307,12 +307,16 @@
                 >
             {/if}
             <div class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl">
-                <img
-                    class="rounded-xl w-full h-full object-cover"
-                    src={ep?.animes?.image_url}
-                    alt={ep?.animes?.name}
-                    loading="eager"
-                />
+                {#if ep}
+                    <img
+                        class="rounded-xl w-full h-full object-cover"
+                        src={ep?.animes?.image_url}
+                        alt={ep?.animes?.name}
+                        loading="eager"
+                    />
+                {:else}
+                    <div class="skeleton h-full w-full rounded-xl"></div>
+                {/if}
             </div>
         </div>
         {#if ep?.animes?.description}

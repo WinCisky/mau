@@ -9,7 +9,6 @@
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
     };
     let episodes = [] as EpisodeWithAnime[];
-    let followedAnime = [] as any[];
     let page = 1;
     const perPage = 20;
 
@@ -50,4 +49,4 @@
 <!-- needed for static compilation -->
 <a href="{base}/player/ignore/me" class="hidden">&nbsp;</a>
 
-<AnimeList {episodes} {followedAnime} {loadMore} />
+<AnimeList {episodes} {loadMore} />

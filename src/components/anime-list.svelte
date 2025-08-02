@@ -1,13 +1,15 @@
 <script lang="ts">
-    import { afterUpdate } from "svelte";
+    import { afterUpdate, onMount } from "svelte";
     import { base } from "$app/paths";
     import type { Database } from "$lib/database.types";
+
+
+    import CalendarCheckIcon from "$lib/assets/icons/calendar-check.svg?raw";
 
     type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
     };
     export let episodes = [] as EpisodeWithAnime[];
-    export let followedAnime = [] as any[];
     export let loadMore;
     export let withLoadingPlaceholder = true;
     
@@ -27,6 +29,16 @@
         }
     });
 
+    function isToday(date: string): boolean {
+        const today = new Date();
+        const episodeDate = new Date(date);
+        return (
+            today.getDate() === episodeDate.getDate() &&
+            today.getMonth() === episodeDate.getMonth() &&
+            today.getFullYear() === episodeDate.getFullYear()
+        );
+    }
+
 </script>
 
 
@@ -45,6 +57,11 @@
                     <span
                         class="indicator-item indicator-bottom indicator-center badge badge-secondary"
                     >DUB</span>
+                {/if}
+                {#if episode.created_at && isToday(episode.created_at)}
+                    <span
+                        class="indicator-item indicator-center badge badge-primary p-[2px] h-auto"
+                    >{@html CalendarCheckIcon}</span>
                 {/if}
                 <a
                     class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
