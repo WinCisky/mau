@@ -172,6 +172,31 @@
             videoElement.setAttribute('x-webkit-airplay', 'allow');
             videoElement.setAttribute('webkit-playsinline', 'true');
         }
+
+        // Tracking history in localStorage
+        if (ep && typeof window !== 'undefined') {
+            const HISTORY_KEY = 'anime_history_v1';
+            let history: any[] = [];
+            try {
+                const raw = localStorage.getItem(HISTORY_KEY);
+                if (raw) {
+                    history = JSON.parse(raw);
+                }
+            } catch {}
+            // Remove any previous entry for this anime/episode
+            history = history.filter(h => !ep || !(h.animeId === ep.anime_id && h.episodeNumber === ep.episode_number));
+            // Add new entry at the start
+            history.unshift({
+                animeId: ep.anime_id,
+                episodeNumber: ep.episode_number,
+                animeName: ep.animes?.name ?? '',
+                animeImage: ep.animes?.image_url ?? '',
+                timestamp: Date.now()
+            });
+            // Limit to 100 entries
+            if (history.length > 100) history = history.slice(0, 100);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        }
     });
 </script>
 

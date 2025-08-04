@@ -19,7 +19,7 @@
         let { data, error } = await supabase
             .from("animes")
             .select("*")
-            .ilike("name", `%${query}%`)
+            .or(`name.ilike.%${query}%,alt_name.ilike.%${query}%`)
             .order("name", { ascending: true });
             
         if (error) {

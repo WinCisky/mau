@@ -7,6 +7,7 @@
     import SummerIcon from "$lib/assets/icons/summer.svg?raw";
     import FallIcon from "$lib/assets/icons/fall.svg?raw";
     import HomeIcon from "$lib/assets/icons/home.svg?raw";
+    import HistoryIcon from "$lib/assets/icons/history.svg?raw";
     import SearchIcon from "$lib/assets/icons/search.svg?raw";
     import { getCurrentSeason } from "$lib";
 
@@ -48,6 +49,10 @@
                     <!-- seasonal icon -->
                     <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/seasonal" aria-label="Home">
                         {@html seasonIcons[seasonName as keyof typeof seasonIcons]}
+                    </a>
+                    <!-- history icon -->
+                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/history" aria-label="History">
+                        {@html HistoryIcon}
                     </a>
                     <!-- search icon -->
                     <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/search" aria-label="Search">
