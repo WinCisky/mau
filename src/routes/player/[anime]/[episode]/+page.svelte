@@ -20,7 +20,9 @@
     let volume = 1;
     let ep = null as EpisodeWithAnime | null;
     let episodes = null as EpisodeWithAnime[] | null;
-    let videoUrl = null as string | null;
+    // Support multiple video sources (API may return more than one)
+    let videoUrls: { url: string; label?: string; [k: string]: any }[] = [];
+    let selectedVideoUrl: string | null = null;
     let relatedAnime = null as Anime[] | null;
     let isCastAvailable = false;
     let castContext: any = null;
@@ -42,10 +44,10 @@
         }
     }
 
-    async function fetchVideoUrl(
+    async function fetchVideoUrls(
         animeId: number,
         episodeNumber: number,
-    ): Promise<string | null> {
+    ): Promise<{ url: string; label?: string; [k: string]: any }[]> {
         try {
             const response = await fetch(
                 `${backendEndpoint}/url/${animeId}/${episodeNumber}`,
@@ -53,10 +55,41 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+            const data = await response.json();
+
+            // Possible shapes:
+            // 1) string => single URL (legacy)
+            // 2) ["url1", "url2"] => array of URLs
+            // 3) [{ url: "...", quality: "1080p"}, ...] => array of objects
+            // 4) { sources: [...] } wrapper
+
+            let sources: any = data;
+
+            if (data && typeof data === 'object' && !Array.isArray(data) && 'sources' in data) {
+                sources = (data as any).sources;
+            }
+
+            if (typeof sources === 'string') {
+                return [{ url: sources, label: 'Default' }];
+            }
+
+            if (Array.isArray(sources)) {
+                // Normalize each entry
+                return sources.map((s: any, idx: number) => {
+                    if (typeof s === 'string') {
+                        return { url: s, label: `Source ${idx + 1}` };
+                    }
+                    // object
+                    const label = s.label || s.quality || s.name || `Source ${idx + 1}`;
+                    return { ...s, url: s.url || s.file || s.src, label };
+                }).filter((s: any) => !!s.url);
+            }
+
+            console.warn('Unrecognized video sources shape', data);
+            return [];
         } catch (error) {
-            console.error("Error fetching video URL:", error);
-            return null;
+            console.error("Error fetching video URLs:", error);
+            return [];
         }
     }
 
@@ -117,11 +150,11 @@
     }
 
     function castToDevice() {
-        if (!castContext || !videoUrl || !ep) return;
+        if (!castContext || !selectedVideoUrl || !ep) return;
         
         const castSession = castContext.getCurrentSession();
         if (castSession) {
-            const mediaInfo = new (window as any).chrome.cast.media.MediaInfo(videoUrl, 'video/mp4');
+            const mediaInfo = new (window as any).chrome.cast.media.MediaInfo(selectedVideoUrl, 'video/mp4');
             mediaInfo.metadata = new (window as any).chrome.cast.media.GenericMediaMetadata();
             mediaInfo.metadata.title = `${ep.animes?.name} - Episode ${ep.episode_number}`;
             if (ep.animes?.image_url) {
@@ -143,7 +176,8 @@
     }
 
     onMount(async () => {
-        videoUrl = await fetchVideoUrl(parseInt(anime), parseInt(episode));
+    videoUrls = await fetchVideoUrls(parseInt(anime), parseInt(episode));
+    selectedVideoUrl = videoUrls[0]?.url ?? null;
         episodes = await getEpisodesWithAnime(parseInt(anime));
         if (episodes && episodes.length > 0) {
             ep =
@@ -211,11 +245,11 @@
     {/if}
 </svelte:head>
 
-{#if videoUrl}
+{#if selectedVideoUrl}
     <div class="relative">
         <video
             controls
-            src={videoUrl}
+            src={selectedVideoUrl}
             bind:volume
             bind:this={videoElement}
             on:volumechange={() => {
@@ -229,9 +263,37 @@
         >
             <track kind="captions" />
         </video>
+        {#if videoUrls.length > 1}
+            <div class="flex justify-center mt-4 flex-wrap gap-4" role="radiogroup" aria-label="Video sources">
+                {#each videoUrls as s, i}
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="radio"
+                            name="video-source"
+                            class="radio radio-neutral"
+                            value={s.url}
+                            checked={selectedVideoUrl === s.url}
+                            on:change={() => {
+                                selectedVideoUrl = s.url;
+                                if (videoElement) {
+                                    const wasPlaying = !videoElement.paused;
+                                    videoElement.src = selectedVideoUrl || '';
+                                    videoElement.load();
+                                    if (wasPlaying) {
+                                        videoElement.play().catch(()=>{});
+                                    }
+                                }
+                            }}
+                            aria-label={s.label || s.quality || s.name || `Source ${i + 1}`}
+                        />
+                        <span class="text-sm">{s.label || s.quality || s.name || `Source ${i + 1}`}</span>
+                    </label>
+                {/each}
+            </div>
+        {/if}
         
         <!-- Cast Button -->
-        {#if isCastAvailable}
+    {#if isCastAvailable}
             <button class="btn btn-circle absolute top-4 right-4"
                 on:click={castToDevice}
                 aria-label="Cast to device"
