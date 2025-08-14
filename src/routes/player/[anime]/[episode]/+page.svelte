@@ -110,7 +110,7 @@
             .from("animes")
             .select("*, related!inner(id, anime_id)")
             .eq("related.id", related.id)
-            .order("created_at", { ascending: false });
+            .order("id", { ascending: true });
 
         if (error) {
             console.error("Error fetching related anime:", error);
