@@ -100,19 +100,19 @@
                 
                 {#if index % 2 === 0}
                     <button 
-                        class="timeline-start timeline-box transition-all duration-200 hover:scale-105 {
-                            isCurrent || isPast ? 'bg-accent text-accent-content' :
-                            'bg-base-200 text-base-content hover:bg-base-300'
-                        }"
+                        class="timeline-start timeline-box bg-base-200 text-base-content hover:bg-base-300 transition-all duration-200 hover:scale-105 {
+                            isCurrent ? 'border-4 border-accent bg-accent text-accent-content' :
+                            ''
+                        } { (isCurrent || isPast) ? '' : 'opacity-50'}"
                     >
                         {seasonNames[seasonName as keyof typeof seasonNames]}
                     </button>
                 {:else}
                     <button 
-                        class="timeline-end timeline-box transition-all duration-200 hover:scale-105 {
-                            isCurrent || isPast ? 'bg-accent text-accent-content' :
-                            'bg-base-200 text-base-content hover:bg-base-300'
-                        }"
+                        class="timeline-end timeline-box bg-base-200 text-base-content hover:bg-base-300 transition-all duration-200 hover:scale-105 {
+                            isCurrent ? 'border-4 border-accent bg-accent text-accent-content' :
+                            ''
+                        } { (isCurrent || isPast) ? '' : 'opacity-50'}"
                     >
                         {seasonNames[seasonName as keyof typeof seasonNames]}
                     </button>
@@ -121,7 +121,7 @@
                 <div class="timeline-middle">
                     <div class="w-8 h-8 p-1 rounded-full {
                         isCurrent || isPast ? 'bg-accent text-accent-content' :
-                        'bg-base-300 text-base-content'
+                        'bg-base-300 text-base-content opacity-50'
                     }">
                         {@html seasonIcons[seasonName as keyof typeof seasonIcons]}
                     </div>
