@@ -1,0 +1,6 @@
+allowBuilds:
+  '@tailwindcss/oxide': true
+  core-js: true
+  esbuild: true
+  supabase: true
+  svelte-preprocess: true

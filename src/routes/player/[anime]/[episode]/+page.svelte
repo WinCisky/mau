@@ -9,7 +9,7 @@
 
     import CastIcon from "$lib/assets/icons/cast.svg?raw";
 
-    const backendEndpoint = "https://slim-boar-34.deno.dev";
+    const backendEndpoint = "https://shy-grouper-30.simo.deno.net";
 
     type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
@@ -49,44 +49,35 @@
         episodeNumber: number,
     ): Promise<{ url: string; label?: string; [k: string]: any }[]> {
         try {
+            const querySlug = await supabase
+                .from("episodes")
+                .select("slug")
+                .eq("anime_id", animeId)
+                .eq("episode_number", episodeNumber);
+
+            if (querySlug.error) {
+                throw new Error(`Query error! status: ${querySlug.error}`);
+            }
+
+            if (querySlug.data.length <= 0) {
+                throw new Error(`Episode not found! status: ${querySlug.data}`);
+            }
+
+            const episodeSlug = querySlug.data[0].slug;
+
             const response = await fetch(
-                `${backendEndpoint}/url/${animeId}/${episodeNumber}`,
+                `${backendEndpoint}?id=${episodeSlug}`,
             );
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
 
-            // Possible shapes:
-            // 1) string => single URL (legacy)
-            // 2) ["url1", "url2"] => array of URLs
-            // 3) [{ url: "...", quality: "1080p"}, ...] => array of objects
-            // 4) { sources: [...] } wrapper
-
-            let sources: any = data;
-
-            if (data && typeof data === 'object' && !Array.isArray(data) && 'sources' in data) {
-                sources = (data as any).sources;
+            if (data.error) {
+                throw new Error(`Response error! status: ${JSON.stringify(data)}`);
             }
 
-            if (typeof sources === 'string') {
-                return [{ url: sources, label: 'Default' }];
-            }
-
-            if (Array.isArray(sources)) {
-                // Normalize each entry
-                return sources.map((s: any, idx: number) => {
-                    if (typeof s === 'string') {
-                        return { url: s, label: `Source ${idx + 1}` };
-                    }
-                    // object
-                    const label = s.label || s.quality || s.name || `Source ${idx + 1}`;
-                    return { ...s, url: s.url || s.file || s.src, label };
-                }).filter((s: any) => !!s.url);
-            }
-
-            console.warn('Unrecognized video sources shape', data);
-            return [];
+            return [{ url: data.grabber, label: 'Default' }];
         } catch (error) {
             console.error("Error fetching video URLs:", error);
             return [];
@@ -176,8 +167,8 @@
     }
 
     onMount(async () => {
-    videoUrls = await fetchVideoUrls(parseInt(anime), parseInt(episode));
-    selectedVideoUrl = videoUrls[0]?.url ?? null;
+        videoUrls = await fetchVideoUrls(parseInt(anime), parseInt(episode));
+        selectedVideoUrl = videoUrls[0]?.url ?? null;
         episodes = await getEpisodesWithAnime(parseInt(anime));
         if (episodes && episodes.length > 0) {
             ep =
