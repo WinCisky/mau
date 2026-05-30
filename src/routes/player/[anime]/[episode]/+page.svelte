@@ -9,7 +9,7 @@
 
     import CastIcon from "$lib/assets/icons/cast.svg?raw";
 
-    const backendEndpoint = "https://shy-grouper-30.simo.deno.net";
+    const backendEndpoint = "https://mau.simo.deno.net";
 
     type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
