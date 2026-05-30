@@ -66,7 +66,7 @@
             const episodeSlug = querySlug.data[0].slug;
 
             const response = await fetch(
-                `${backendEndpoint}?id=${episodeSlug}`,
+                `${backendEndpoint}/link?id=${episodeSlug}`,
             );
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
