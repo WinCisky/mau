@@ -93,8 +93,8 @@
                     {/if}
                     <a
                         class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
-                        href={`${base}/player/${an.id}/1`}
-                        aria-label={`Watch ${an.name} episode 1`}
+                        href={`${base}/player/${an.id}`}
+                        aria-label={`Watch ${an.name} latest episode`}
                     >
                         <img
                             class="rounded-xl w-full h-full object-cover"
