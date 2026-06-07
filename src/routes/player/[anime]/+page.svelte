@@ -11,9 +11,9 @@
     let errorMessage = "";
 
     onMount(async () => {
-        const animeId = Number(anime);
+        const animeId = parseInt(anime ?? "0");
 
-        if (!Number.isInteger(animeId)) {
+        if (animeId === 0) {
             errorMessage = "Invalid anime id";
             return;
         }
@@ -50,7 +50,7 @@
         }
 
         const response = await fetch(
-            `${backendEndpoint}/episodes?anime=${encodeURIComponent(animeData.slug)}`
+            `${backendEndpoint}/episodes?anime=${animeId}`
         );
         const payload = await response.json();
 
