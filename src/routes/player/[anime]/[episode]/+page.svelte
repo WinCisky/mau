@@ -167,15 +167,23 @@
     }
 
     onMount(async () => {
-        videoUrls = await fetchVideoUrls(parseInt(anime), parseInt(episode));
+        const animeId = parseInt(anime ?? "0")
+        const episodeId = parseInt(episode ?? "0")
+        // do get link to episode
+        videoUrls = await fetchVideoUrls(animeId, episodeId);
         selectedVideoUrl = videoUrls[0]?.url ?? null;
-        episodes = await getEpisodesWithAnime(parseInt(anime));
+        // do update anime episodes
+        await fetch(
+            `${backendEndpoint}/episodes?anime=${anime}`,
+        );
+        // go get other episodes
+        episodes = await getEpisodesWithAnime(animeId);
         if (episodes && episodes.length > 0) {
             ep =
-                episodes.find((e) => e.episode_number === parseInt(episode)) ||
+                episodes.find((e) => e.episode_number === episodeId) ||
                 null;
         }
-        relatedAnime = await getRelatedAnime(parseInt(anime));
+        relatedAnime = await getRelatedAnime(animeId);
         
         // Initialize Chromecast after page loads
         if (typeof window !== 'undefined') {
