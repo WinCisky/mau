@@ -47,6 +47,7 @@
 </svelte:head>
 
 <!-- needed for static compilation -->
-<a href="{base}/player/ignore/me" class="hidden">&nbsp;</a>
+<a href="{base}/player/ignore/me" class="hidden" aria-label="Static player episode route">&nbsp;</a>
+<a href="{base}/player/ignore" class="hidden" aria-label="Static player route">&nbsp;</a>
 
 <AnimeList {episodes} {loadMore} />

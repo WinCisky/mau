@@ -5,7 +5,7 @@
     import { type Database } from "$lib/database.types";
     import { supabase } from "$lib/db_helper";
     import { onMount } from "svelte";
-    const { anime, episode } = $page.params;
+    const { anime = "", episode = "" } = $page.params;
 
     import CastIcon from "$lib/assets/icons/cast.svg?raw";
 
@@ -118,7 +118,7 @@
     }
 
     function changeAnime(animeId: number) {
-        window.location.href = `${base}/player/${animeId}/1`;
+        window.location.href = `${base}/player/${animeId}`;
     }
 
     // Chromecast functions
