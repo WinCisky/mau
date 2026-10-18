@@ -1,3 +1,6 @@
+engineStrict: true
+resolutionMode: highest
+
 allowBuilds:
   '@tailwindcss/oxide': true
   core-js: true

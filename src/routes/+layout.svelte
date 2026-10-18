@@ -1,15 +1,15 @@
 <script lang="ts">
     import "../app.css";
-    import { base } from "$app/paths";
+    import { resolve } from "$app/paths";
 
-    import WinterIcon from "$lib/assets/icons/winter.svg?raw";
-    import SpringIcon from "$lib/assets/icons/spring.svg?raw";
-    import SummerIcon from "$lib/assets/icons/summer.svg?raw";
-    import FallIcon from "$lib/assets/icons/fall.svg?raw";
-    import HomeIcon from "$lib/assets/icons/home.svg?raw";
-    import HistoryIcon from "$lib/assets/icons/history.svg?raw";
-    import SearchIcon from "$lib/assets/icons/search.svg?raw";
-    import { getCurrentSeason } from "$lib";
+    import WinterIcon from "#lib/assets/icons/winter.svg?raw";
+    import SpringIcon from "#lib/assets/icons/spring.svg?raw";
+    import SummerIcon from "#lib/assets/icons/summer.svg?raw";
+    import FallIcon from "#lib/assets/icons/fall.svg?raw";
+    import HomeIcon from "#lib/assets/icons/home.svg?raw";
+    import HistoryIcon from "#lib/assets/icons/history.svg?raw";
+    import SearchIcon from "#lib/assets/icons/search.svg?raw";
+    import { getCurrentSeason } from "#lib";
 
     const seasonIcons = {
         winter: WinterIcon,
@@ -20,7 +20,6 @@
 
     const seasonName = getCurrentSeason();
 
-    $: myBase = base ? (base.endsWith("/") ? base : `${base}/`) : "/";
 </script>
 
 <div class="drawer">
@@ -37,25 +36,25 @@
                 class="flex justify-between gap-2 bg-base-300 z-50 absolute right-4 md:right-8 bottom-4 flex rounded-md p-2 pointer-events-auto left-4 sm:left-auto border-2 border-base-content"
             >
                 <div class="">
-                    <a class="btn btn-ghost normal-case text-xl" href={myBase}
+                    <a class="btn btn-ghost normal-case text-xl" href={resolve('/')}
                         >Mau</a
                     >
                 </div>
                 <div class="flex items-center gap-4">
                     <!-- home icon -->
-                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href={myBase} aria-label="Home">
+                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href={resolve('/')} aria-label="Home">
                         {@html HomeIcon}
                     </a>
                     <!-- seasonal icon -->
-                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/seasonal" aria-label="Home">
+                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href={resolve('/seasonal')} aria-label="Home">
                         {@html seasonIcons[seasonName as keyof typeof seasonIcons]}
                     </a>
                     <!-- history icon -->
-                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/history" aria-label="History">
+                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href={resolve('/history')} aria-label="History">
                         {@html HistoryIcon}
                     </a>
                     <!-- search icon -->
-                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href="{base}/search" aria-label="Search">
+                    <a class="btn btn-ghost btn-circle w-8 h-8 h-full" href={resolve('/search')} aria-label="Search">
                         {@html SearchIcon}
                     </a>
                 </div>

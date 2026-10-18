@@ -1,6 +1,6 @@
 // import type { PageLoad } from "./$types";
 // import PocketBase from "pocketbase";
-// import { getLatestEpisodes } from "$lib/db_helper";
+// import { getLatestEpisodes } from "#lib/db_helper.ts";
 
 // export const load = (async () => {
 //     const pb = new PocketBase("https://dev.opentrust.it/");

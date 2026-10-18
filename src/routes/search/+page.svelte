@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { base } from "$app/paths";
-    import { type Database } from "$lib/database.types";
-    import { supabase } from "$lib/db_helper";
+    import { resolve } from "$app/paths";
+    import { type Database } from "#lib/database.types.ts";
+    import { supabase } from "#lib/db_helper.ts";
     import { onMount, tick } from "svelte";
 
     type Anime = Database["public"]["Tables"]["animes"]["Row"];
@@ -93,7 +93,7 @@
                     {/if}
                     <a
                         class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
-                        href={`${base}/player/${an.id}`}
+                        href={resolve('/player/[anime]', { anime: String(an.id) })}
                         aria-label={`Watch ${an.name} latest episode`}
                     >
                         <img

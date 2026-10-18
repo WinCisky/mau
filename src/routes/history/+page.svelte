@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { base } from "$app/paths";
+    import { resolve } from "$app/paths";
     import { onMount } from "svelte";
 
     type HistoryEntry = {
@@ -65,7 +65,7 @@
                             />
                         </svg>
                     </div>
-                    <a href="{base}/player/{entry.animeId}/{entry.episodeNumber}"
+                    <a href={resolve('/player/[anime]/[episode]', { anime: String(entry.animeId), episode: String(entry.episodeNumber) })}
                         class="{i % 2 === 0 ? 'timeline-start mb-10 md:text-end md:items-end' : 'timeline-end md:mb-10'} flex flex-col gap-1">
                         <time class="font-mono italic">
                             {new Date(entry.timestamp).toLocaleDateString()}

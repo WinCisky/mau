@@ -1,7 +1,13 @@
-import { build, files, version } from '$service-worker';
+import { self } from '$app/service-worker';
+import { version } from '$app/env';
+import { immutable, assets } from '$app/manifest';
+import { resolve } from '$app/paths';
 const worker = self;
 const FILES = `cache${version}`;
-const to_cache = build.concat(files);
+// $app/manifest paths are relative to the base path, so resolve them
+// ($app/manifest paths are plain strings, so cast them for the typed resolve())
+const to_cache = [...immutable, ...assets].map((file) => resolve(/** @type {any} */ (file.path)));
+/** @type {Set<string>} */
 const staticAssets = new Set(to_cache);
 // listen for the install events
 worker.addEventListener('install', (event) => {
@@ -27,6 +33,7 @@ worker.addEventListener('activate', (event) => {
     );
 });
 // attempt to process HTTP requests and rely on the cache if offline
+/** @param {Request} request */
 async function fetchAndCache(request) {
     const cache = await caches.open(`offline${version}`);
     try {

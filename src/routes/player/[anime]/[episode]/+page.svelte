@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { base } from "$app/paths";
-    import { decodeHTMLEntities } from "$lib";
-    import { page } from "$app/stores";
-    import { type Database } from "$lib/database.types";
-    import { supabase } from "$lib/db_helper";
+    import { resolve } from "$app/paths";
+    import { decodeHTMLEntities } from "#lib";
+    import { page } from "$app/state";
+    import { type Database } from "#lib/database.types.ts";
+    import { supabase } from "#lib/db_helper.ts";
     import { onMount } from "svelte";
-    const { anime = "", episode = "" } = $page.params;
+    const { anime = "", episode = "" } = page.params;
 
-    import CastIcon from "$lib/assets/icons/cast.svg?raw";
+    import CastIcon from "#lib/assets/icons/cast.svg?raw";
 
     const backendEndpoint = "https://mau.simo.deno.net";
 
@@ -113,12 +113,12 @@
 
     function changeEpisode(episodeNumber: number) {
         if (ep && ep.anime_id) {
-            window.location.href = `${base}/player/${ep.anime_id}/${episodeNumber}`;
+            window.location.href = resolve('/player/[anime]/[episode]', { anime: String(ep.anime_id), episode: String(episodeNumber) });
         }
     }
 
     function changeAnime(animeId: number) {
-        window.location.href = `${base}/player/${animeId}`;
+        window.location.href = resolve('/player/[anime]', { anime: String(animeId) });
     }
 
     // Chromecast functions

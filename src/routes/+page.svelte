@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { base } from "$app/paths";
+    import { resolve } from "$app/paths";
     import { onMount } from "svelte";
     import AnimeList from "../components/anime-list.svelte";
-    import { type Database } from "$lib/database.types";
-    import { supabase } from "$lib/db_helper";
+    import { type Database } from "#lib/database.types.ts";
+    import { supabase } from "#lib/db_helper.ts";
 
     type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
@@ -47,7 +47,7 @@
 </svelte:head>
 
 <!-- needed for static compilation -->
-<a href="{base}/player/ignore/me" class="hidden" aria-label="Static player episode route">&nbsp;</a>
-<a href="{base}/player/ignore" class="hidden" aria-label="Static player route">&nbsp;</a>
+<a href={resolve('/player/[anime]/[episode]', { anime: 'ignore', episode: 'me' })} class="hidden" aria-label="Static player episode route">&nbsp;</a>
+<a href={resolve('/player/[anime]', { anime: 'ignore' })} class="hidden" aria-label="Static player route">&nbsp;</a>
 
 <AnimeList {episodes} {loadMore} />

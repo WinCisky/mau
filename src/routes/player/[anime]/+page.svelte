@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { base } from "$app/paths";
+    import { resolve } from "$app/paths";
     import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import { supabase } from "$lib/db_helper";
+    import { page } from "$app/state";
+    import { supabase } from "#lib/db_helper.ts";
     import { onMount } from "svelte";
 
-    const { anime = "" } = $page.params;
+    const { anime = "" } = page.params;
     const backendEndpoint = "https://mau.simo.deno.net";
 
     let errorMessage = "";
@@ -32,7 +32,7 @@
         }
 
         if (data) {
-            await goto(`${base}/player/${animeId}/${data.episode_number}`, {
+            await goto(resolve('/player/[anime]/[episode]', { anime: String(animeId), episode: String(data.episode_number) }), {
                 replaceState: true
             });
             return;
@@ -66,7 +66,7 @@
             return;
         }
 
-        await goto(`${base}/player/${animeId}/${latestEpisode}`, {
+        await goto(resolve('/player/[anime]/[episode]', { anime: String(animeId), episode: String(latestEpisode) }), {
             replaceState: true
         });
     });

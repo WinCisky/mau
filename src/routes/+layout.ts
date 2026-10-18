@@ -2,7 +2,7 @@
 export const prerender = true;
 
 import posthog from 'posthog-js'
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 export const load = async () => {
 

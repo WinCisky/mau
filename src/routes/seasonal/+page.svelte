@@ -1,16 +1,15 @@
 <script lang="ts">
-    import { base } from "$app/paths";
-    import { decodeHTMLEntities, getCurrentSeason } from "$lib";
-    import { page } from "$app/stores";
-    import { type Database } from "$lib/database.types";
-    import { supabase } from "$lib/db_helper";
+    import { resolve } from "$app/paths";
+    import { decodeHTMLEntities, getCurrentSeason } from "#lib";
+    import { type Database } from "#lib/database.types.ts";
+    import { supabase } from "#lib/db_helper.ts";
     import { onMount } from "svelte";
     
     // Import seasonal icons
-    import WinterIcon from "$lib/assets/icons/winter.svg?raw";
-    import SpringIcon from "$lib/assets/icons/spring.svg?raw";
-    import SummerIcon from "$lib/assets/icons/summer.svg?raw";
-    import FallIcon from "$lib/assets/icons/fall.svg?raw";
+    import WinterIcon from "#lib/assets/icons/winter.svg?raw";
+    import SpringIcon from "#lib/assets/icons/spring.svg?raw";
+    import SummerIcon from "#lib/assets/icons/summer.svg?raw";
+    import FallIcon from "#lib/assets/icons/fall.svg?raw";
 
     type Anime = Database["public"]["Tables"]["animes"]["Row"];
 
@@ -146,7 +145,7 @@
                 {/if}
                 <a
                     class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
-                    href={`${base}/player/${an.id}/1`}
+                    href={resolve('/player/[anime]/[episode]', { anime: String(an.id), episode: '1' })}
                     aria-label={`Watch ${an.name} episode 1`}
                 >
                     <!-- add episode number -->

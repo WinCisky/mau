@@ -1,10 +1,10 @@
 <script lang="ts">
     import { afterUpdate, onMount } from "svelte";
-    import { base } from "$app/paths";
-    import type { Database } from "$lib/database.types";
+    import { resolve } from "$app/paths";
+    import type { Database } from "#lib/database.types.ts";
 
 
-    import CalendarCheckIcon from "$lib/assets/icons/calendar-check.svg?raw";
+    import CalendarCheckIcon from "#lib/assets/icons/calendar-check.svg?raw";
 
     type EpisodeWithAnime = Database["public"]["Tables"]["episodes"]["Row"] & {
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
@@ -65,7 +65,7 @@
                 {/if}
                 <a
                     class="rounded-xl w-36 md:w-52 bg-base-100 shadow-xl"
-                    href={`${base}/player/${episode.anime_id}/${episode.episode_number ?? 1}`}
+                    href={resolve('/player/[anime]/[episode]', { anime: String(episode.anime_id), episode: String(episode.episode_number ?? 1) })}
                     aria-label={`Watch ${episode.animes?.name} episode ${episode.episode_number}`}
                 >
                     <!-- add episode number -->
