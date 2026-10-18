@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { afterUpdate, onMount } from "svelte";
+    import { afterUpdate, onDestroy, tick } from "svelte";
     import { resolve } from "$app/paths";
     import type { Database } from "#lib/database.types.ts";
 
@@ -10,23 +10,56 @@
         animes: Database["public"]["Tables"]["animes"]["Row"] | null;
     };
     export let episodes = [] as EpisodeWithAnime[];
-    export let loadMore;
+    export let loadMore: () => unknown | Promise<unknown>;
     export let withLoadingPlaceholder = true;
-    
+
+    const MARGIN = 300; // px of look-ahead before the sentinel enters the viewport
+    let container: HTMLDivElement;
     let observer: IntersectionObserver | null = null;
+    let loading = false;
+    let destroyed = false;
+
+    // The sentinel needs loading if it is visible OR already scrolled past
+    // (e.g. scroll position restored on back navigation, landing on the
+    // trailing skeletons below the sentinel).
+    function sentinelNeedsLoad(): boolean {
+        const sentinel = container?.querySelector('#load-more-skeleton');
+        if (!sentinel) return false;
+        return sentinel.getBoundingClientRect().top < window.innerHeight + MARGIN;
+    }
+
+    async function maybeLoadMore() {
+        if (loading || destroyed || !withLoadingPlaceholder) return;
+        if (!episodes || episodes.length === 0) return; // initial load handled by parent
+        if (!sentinelNeedsLoad()) return;
+        loading = true;
+        const before = episodes.length;
+        try {
+            await loadMore();
+        } finally {
+            loading = false;
+        }
+        await tick();
+        // Keep loading while the sentinel is still in/above the viewport,
+        // but stop if nothing new arrived (end of data or error).
+        if (episodes.length > before) maybeLoadMore();
+    }
+
     afterUpdate(() => {
         if (observer) observer.disconnect();
+        if (!container) return;
         observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    loadMore();
-                }
-            });
-        });
-        const loadMoreSkeleton = document.getElementById('load-more-skeleton');
-        if (loadMoreSkeleton) {
-            observer.observe(loadMoreSkeleton);
-        }
+            if (entries.some((e) => e.isIntersecting)) maybeLoadMore();
+        }, { rootMargin: `0px 0px ${MARGIN}px 0px` });
+        // Observe the sentinel and every trailing skeleton, so landing anywhere
+        // in the skeleton area triggers a load.
+        container.querySelectorAll('.load-more-trigger').forEach((el) => observer!.observe(el));
+        maybeLoadMore();
+    });
+
+    onDestroy(() => {
+        destroyed = true;
+        observer?.disconnect();
     });
 
     function isToday(date: string): boolean {
@@ -42,7 +75,7 @@
 </script>
 
 
-<div class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10 mt-0 md:mt-4">
+<div bind:this={container} class="flex flex-wrap justify-center gap-8 md:gap-10 mb-10 mt-0 md:mt-4">
     {#if episodes && episodes.length > 0}
         {#each episodes as episode, index}
             <div class="indicator h-52 md:h-80">
@@ -80,11 +113,11 @@
         {/each}
         
         {#if withLoadingPlaceholder}
-            <div class="skeleton w-36 h-52 md:w-52 md:h-72" id="load-more-skeleton"></div>
+            <div class="skeleton w-36 h-52 md:w-52 md:h-72 load-more-trigger" id="load-more-skeleton"></div>
         {/if}
     {/if}
     {#each Array.from({ length: 10 }) as _}
-        <div class="skeleton w-36 h-52 md:w-52 md:h-72"></div>
+        <div class="skeleton w-36 h-52 md:w-52 md:h-72 load-more-trigger"></div>
     {/each}
     
 </div>

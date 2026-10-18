@@ -29,15 +29,14 @@
         }
     });
 
-    function loadMore() {
+    async function loadMore() {
+        const { data, error } = await getAnimePage(page + 1);
+        if (error) {
+            console.error("Error fetching more episodes:", error);
+            return;
+        }
         page += 1;
-        getAnimePage(page).then(({ data, error }) => {
-            if (error) {
-                console.error("Error fetching more episodes:", error);
-            } else {
-                episodes = [...episodes, ...data];
-            }
-        });
+        episodes = [...episodes, ...data];
     }
 </script>
 
