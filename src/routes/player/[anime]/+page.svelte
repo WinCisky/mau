@@ -6,7 +6,7 @@
     import { onMount } from "svelte";
 
     const { anime = "" } = page.params;
-    const backendEndpoint = "https://mau.simo.deno.net";
+    const backendEndpoint = "https://mau-back.simonellassimo.workers.dev";
 
     let errorMessage = "";
 
